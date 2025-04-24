@@ -1,0 +1,79 @@
+#!/usr/bin/env Rscript
+
+library(optparse)
+options <- list(
+        make_option(c("-a","--filea"), "store", default="", help="First input file", type="character"),
+        make_option(c("-b","--fileb"), "store", default="", help="Second input file", type="character"),
+	make_option(c("-x","--limit"), "store", default=1e-10, help="Limit on the difference of numeric values", type="numeric"),
+	make_option(c("-d","--discard"), "store", default="", help="regexp for columns to discard (separate by '|')", type="character")
+)
+
+opt <- parse_args(OptionParser(usage="Usage: csvdiff -a file -b file [-x 1e-10]", options))
+
+read = function(f) {
+	if (f == "") stop("Input file not specified\nUsage: ADmod -a file -b file\n");
+	if (! file.exists(f)) stop(paste("File not found:",f))
+	tab = try(read.csv(f),silent=TRUE)
+	if (inherits(tab, "try-error")) stop(paste(f,"is not a valid CSV file"))
+	tab
+}
+
+if (! is.numeric(opt$limit)) stop("Limit not numeric.")
+eps = abs(opt$limit)
+
+opt$discard = strsplit(opt$discard,",")[[1]]
+if (! is.character(opt$discard)) stop("Discard list is not text")
+
+grepl_any = function(pattern, x, ...) {
+	sel = rep(FALSE,length(x))
+	for (p in pattern) sel = sel | grepl(p, x, ...)
+	sel
+}
+
+tab1 = read(opt$filea)
+sel = grepl_any(opt$discard, names(tab1))
+if (any(sel)) tab1=tab1[,!sel]
+tab2 = read(opt$fileb)
+sel = grepl_any(opt$discard, names(tab2))
+if (any(sel)) tab2=tab2[,!sel]
+
+if ( ! identical(dim(tab1),dim(tab2)) ) {
+	cat("dimensions not identical:\n")
+	print(dim(tab1))
+	print(dim(tab2))
+	q(status=-1)
+}
+if ( ! identical(sort(names(tab1)), sort(names(tab2))) ) {
+	cat("names (header) not identical:\n")
+	print(sort(names(tab1)))
+	print(sort(names(tab2)))
+	q(status=-2)
+}
+
+ret = TRUE
+for (i in names(tab1)) {
+	a=tab1[[i]]
+	b=tab2[[i]]
+	ret = TRUE
+	if (is.numeric(a) && is.numeric(b)) {
+		div = (max(abs(a))+max(abs(b)))/2
+		if (div >= eps) {
+			reldiff = abs(a-b)/div
+			if (any(reldiff > eps)) ret = FALSE
+		}
+	} else {
+		div = 1
+		ret = identical(a,b)
+	}
+	if (! ret) {
+		cat("Differ at",i,"\n");
+		cat("  max(abs(a-b))     :",max(abs(a-b)),"\n");
+		cat("  max(abs(a-b)/div) :",max(abs(a-b)/div),"\n");
+		cat("  eps               :",eps,"\n");
+		q(status=-3);
+	}
+}
+
+
+q(status=0);	
+

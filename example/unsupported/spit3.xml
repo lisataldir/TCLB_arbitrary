@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<CLBConfig version="2.0" permissive="true">
+	<Geometry nx="256" ny="200" predef="none" model="MRT">
+		<MRT>
+			<Box/>
+		</MRT>
+		<Wet>
+			<Box nx="40" dy="80" ny="40"/>
+		</Wet>
+		<WPressure>
+			<Box nx="1"/>
+		</WPressure>
+		<Wall mask="ALL">
+			<Wedge direction="UpperRight" dy="110" ny="10" nx="40"/>
+			<Wedge direction="LowerRight" dy="80" ny="10" nx="40"/>
+			<Box dx="-2"/>
+			<Box nx="20" fy="80"/>
+			<Box nx="20" dy="120"/>
+			<Channel/>
+		</Wall>
+		<Wet>
+			<!--			<Box nx="30" dy="-45" fy="-25"/>-->
+		</Wet>
+	</Geometry>
+	<Model>
+		<Param name="InletVelocity" value="0.0"/>
+		<Param name="InletDensity" value="1.00"/>
+		<Param name="nu" value="0.08333333"/>
+		<Param name="GravitationX" value="-0.0000125"/>
+		<Param name="MagicF" value="-0.6666666666666"/>
+		<Param name="MagicA" value="-0.152"/>
+		<Param name="Magic" value="0.005"/>
+		<Param name="FAcc" value="1"/>
+		<Param name="Temperature" value="0.65"/>
+		<Param name="InletDensity" value="3.4"/>
+		<Param name="WetDensity" value="2.9"/>
+		<Param name="WallDensity" value="1.0"/>
+		<Param name="InitDensity" value="0.04"/>
+	</Model>
+	<Solve Iterations="4000" output="output/">
+		<Param name="InletDensity" value="2.9"/>
+		<VTK Iterations="200"/>
+	</Solve>
+	<Solve Iterations="2400" output="output/">
+		<VTK Iterations="200"/>
+		<Param name="InletDensity" value="3.4"/>
+	</Solve>
+	<Solve Iterations="12000" output="output/">
+		<VTK Iterations="200"/>
+		<Param name="InletDensity" value="2.9"/>
+	</Solve>
+</CLBConfig>

@@ -1,0 +1,3 @@
+CudaDeviceFunction real_t getWB(){
+        return wb;
+}

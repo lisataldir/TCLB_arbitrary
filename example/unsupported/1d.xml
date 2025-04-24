@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<CLBConfig version="2.0" permissive="true">
+	<Geometry nx="100" ny="1" nz="1" predef="none" model="MRT">
+		<MRT>
+			<Box/>
+		</MRT>
+		<WPressure zone="Inlet"/>
+		<EPressure zone="Outlet"/>
+		<Solid>
+			<Box dx="50" fx="-2"/>
+		</Solid>
+	</Geometry>
+	<Model>
+		<Param name="InletVelocity" value="0.1"/>
+		<Param name="InletDensity" value="1.03"/>
+		<Param name="nu" value="0.2"/>
+		<Param name="Coriolis" value="0.001"/>
+		<Param name="SolidAlfa" value="0.166"/>
+		<Param name="FluidAlfa" value="0.01"/>
+		<Param name="InitTemperature" value="0"/>
+		<Param name="InletTemperature" value="1"/>
+	</Model>
+	<Solve Iterations="100000" output="output/">
+		<VTK Iterations="1000"/>
+	</Solve>
+</CLBConfig>

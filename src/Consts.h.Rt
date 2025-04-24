@@ -1,0 +1,55 @@
+<?R
+  source("conf.R")
+  c_header(); ?>
+
+#ifndef CONFIG_H
+  #include "../config.h"
+  #define CONFIG_H 
+#endif
+
+#ifndef CONSTS_H
+#define CONSTS_H 
+
+#define VERSION "<?%s git_version() ?>"
+#define MODEL "<?%s MODEL ?>"
+#define NUMBER_OF_DENSITIES <?%d nrow(DensityAll) ?>
+
+#ifdef CROSS_CPU
+  #define MAX_THREADS 1
+#else
+  #define MAX_THREADS 128
+#endif
+
+#define PART_MAR <?%f PartMargin ?>
+#define PART_MAR_BOX <?%f max(0,PartMargin-0.5) ?>
+
+<?R
+  for (n in rows(NodeTypes)) { ?>
+#define <?%-20s n$Index ?> <?%s big_hex(n$value) ?> <?R
+  }
+  for (n in rows(NodeTypeGroups)) { ?>
+#define <?%-20s n$Index ?> <?%s big_hex(n$mask) ?> <?R
+  }
+?>
+<?R
+  for (v in rows(Consts)) { ?>
+#define <?%-40s v$name ?> <?%5d v$value ?> <?R
+  }
+?>
+
+typedef <?%s FlagT ?> flag_t;
+//typedef unsigned int big_flag_t;
+typedef flag_t big_flag_t;
+
+<?R for (e in names(Enums)) { ?>
+enum <?%s e ?> { <?%s paste(Enums[[e]],collapse=",") ?> }; <?R
+} ?>
+
+<?R for (n in names(Options)) {
+	if (Options[[n]]) { ?>
+#define OPTIONS_<?%s n ?> 1
+<?R } else { ?>
+#undef OPTIONS_<?%s n ?>
+<?R }} ?>
+
+#endif

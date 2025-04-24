@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<CLBConfig version="2.0" output="output/" permissive="true">
+	<Units>
+		<Param name="x" value="1x" gauge="64"/>
+		<Param name="y" value="1y" gauge="0.2x"/>
+	</Units>
+	<Geometry nx="1x" ny="1x" nz="1x">
+		<MRT>
+			<Box/>
+		</MRT>
+		<Wall mask="ALL">
+			<Box dx="0.5x-0.5y" nx="1y" dy="0.5x-0.5y" ny="1y"/>
+			<Box dx="0.5x-0.5y" nx="1y" dz="0.5x-0.5y" nz="1y"/>
+			<Box dz="0.5x-0.5y" nz="1y" dy="0.5x-0.5y" ny="1y"/>
+		</Wall>
+		<XYslice>
+			<Box dz="1" nz="1"/>
+		</XYslice>
+		<XZslice>
+			<Box dy="1" ny="1"/>
+		</XZslice>
+		<YZslice>
+			<Box dx="1" nx="1"/>
+		</YZslice>
+	</Geometry>
+	<Model>
+		<Param name="Smag" value="0.16"/>
+		<Param name="nu" value="0.05"/>
+		<Param name="ForceX" value="1e-4"/>
+		<Param name="ForceY" value="0.5e-4"/>
+	</Model>
+	<VTK Iterations="1000"/>
+	<Log Iterations="20"/>
+	<Solve Iterations="100000"/>
+	<Param name="ForceY" value="0.7e-4"/>
+	<Solve Iterations="100000"/>
+</CLBConfig>
