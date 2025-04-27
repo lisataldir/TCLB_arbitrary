@@ -1,31 +1,25 @@
 #include "cbAveraging.h"
 std::string cbAveraging::xmlname = "Average";
-#include "../HandlerFactory.h"
 
+#include "../HandlerFactory.h"
+#include "../utils.h"
 
 int cbAveraging::Init () {
-	Callback::Init();
-	auto variant = solver->getLatticeVariant();
-	if (std::holds_alternative<Lattice<CartLattice>*>(variant)) {
-		solver->getCartLattice()->resetAverage();
-	} 
-	if (std::holds_alternative<Lattice<ArbLattice>*>(variant)) {
-		solver->getArbLattice()->resetAverage();
-	} 
-	return 0;
+	return Callback::Init();
 }
 
 
 int cbAveraging::DoIt () {
 	Callback::DoIt();
-	auto variant = solver->getLatticeVariant();
-	if (std::holds_alternative<Lattice<CartLattice>*>(variant)) {
+	const auto do_cartesian = [&](const Lattice<CartLattice>* lattice){
 		solver->getCartLattice()->resetAverage();
-	} 
-	if (std::holds_alternative<Lattice<ArbLattice>*>(variant)) {
+		return EXIT_SUCCESS;
+	};
+	const auto do_arbitrary = [&](const Lattice<ArbLattice>* lattice){
 		solver->getArbLattice()->resetAverage();
-	} 
-	return 0;
+		return EXIT_SUCCESS;
+	};
+	return std::visit(OverloadSet{do_cartesian, do_arbitrary}, solver->getLatticeVariant());
 }
 
 
