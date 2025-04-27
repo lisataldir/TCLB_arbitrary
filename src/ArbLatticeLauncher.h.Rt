@@ -31,6 +31,7 @@ if (q$adjoint) {
 }
 ?>
     void getQuantity<?%s q$name ?>(<?%s q$type ?>* tab, real_t scale, const LatticeData& data) const;
+    void SampleQuantity<?%s q$name ?>(<?%s q$type ?>* tab, real_t scale, const LatticeData& data) const;
 <?R }
 ifdef() ?>
 };

@@ -132,6 +132,10 @@ void ArbLatticeLauncher::getQuantity<?%s q$name ?>(<?%s q$type ?>* tab, real_t s
     const GetQuantityArbExecutor<?%s q$name?> executor{{container.num_border_nodes + container.num_interior_nodes}, container, data, tab, scale};
     LaunchExecutor(executor);
 }
+
+void ArbLatticeLauncher::SampleQuantity<?%s q$name ?>(<?%s q$type ?>* tab, real_t scale, const LatticeData& data) const {
+    // TO DO
+}
 <?R }
 ifdef() ?>
 
