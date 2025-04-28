@@ -3,20 +3,20 @@ std::string cbSample::xmlname = "Sample";
 #include "../HandlerFactory.h"
 
 int cbSample::Init () {
-		std::string nm="Sampler";
-		Callback::Init();
-		if (everyIter == 0) {
-			error("Iteration value in sampler should not be zero");
-			return -1;
-		}
-		pugi::xml_attribute attr=node.attribute("what");
-		if (attr) {
-			s.add_from_string(attr.value(),',');
-		}
-		else {
-			s.add_from_string("all",',');
-		}
-        const auto lattice = solver->getCartLattice();
+	std::string nm="Sampler";
+	Callback::Init();
+	if (everyIter == 0) {
+		error("Iteration value in sampler should not be zero");
+		return -1;
+	}
+	pugi::xml_attribute attr=node.attribute("what");
+	if (attr) {
+		s.add_from_string(attr.value(),',');
+	}
+	else {
+		s.add_from_string("all",',');
+	}
+    const auto init_cartesian = [&](const Lattice<CartLattice>* lattice){
 		for (pugi::xml_node par = node.first_child(); par; par = par.next_sibling()) {
 			if (strcmp(par.name(),"Point") == 0) {
 				lbRegion loc;
@@ -44,23 +44,43 @@ int cbSample::Init () {
 		lattice->sample->mpi_rank = solver->mpi_rank;
 		lattice->sample->Allocate(&s,startIter,everyIter);
 		lattice->sample->initCSV(filename.c_str());
-		return 0;
-		}
+        return EXIT_SUCCESS;
+	};
+
+	const auto init_arbitrary = [&](const Lattice<ArbLattice>* lattice) {
+		/// TODO
+		return EXIT_SUCCESS;
+	};
+	return std::visit(OverloadSet{init_cartesian, init_arbitrary}, solver->getLatticeVariant());
+}
 
 
 int cbSample::DoIt () {
-		Callback::DoIt();
-        const auto lattice = solver->getCartLattice();
-		lattice->sample->writeHistory(solver->iter);
-		lattice->sample->startIter = solver->iter;
-		return 0;
-		}
+	Callback::DoIt();
+    const auto do_cartesian = [&](const Lattice<CartLattice>* lattice) {
+      lattice->sample->writeHistory(solver->iter);
+      lattice->sample->startIter = solver->iter;
+      return EXIT_SUCCESS;
+    };
+    const auto do_arbitrary = [&](const Lattice<ArbLattice>* lattice) {
+      /// TODO
+      return EXIT_SUCCESS;
+    };
+    return std::visit(OverloadSet{do_cartesian, do_arbitrary}, solver->getLatticeVariant());
+}
 
 
 int cbSample::Finish () {
-	   solver->getCartLattice()->sample->Finish();
-	   return Callback::Finish();
-	 }	 
+    const auto end_cartesian = [&](const Lattice<CartLattice>* lattice) {
+        lattice->sample->Finish();
+        return Callback::Finish();
+    };
+    const auto end_arbitrary = [&](const Lattice<ArbLattice>* lattice) {
+        /// TODO
+        return Callback::Finish();
+    };
+    return std::visit(OverloadSet{end_cartesian, end_arbitrary}, solver->getLatticeVariant());
+}	 
 
 
 // Register the handler (basing on xmlname) in the Handler Factory
