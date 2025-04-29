@@ -44,7 +44,6 @@ CudaUniquePtr<T> cudaMakeUnique2D(size_t& num_cols, size_t num_rows) {
     assert(row_sz_bytes % sizeof(T) == 0);
     num_cols = row_sz_bytes / sizeof(T);
     if (!ptr) throw std::bad_alloc{};
-    std::cout << "Taille de snaps_device = " << row_sz_bytes << "x" << num_rows << std::endl;
     return CudaUniquePtr<T>(static_cast<T*>(ptr));
 }
 
