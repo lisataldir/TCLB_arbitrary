@@ -29,31 +29,32 @@ int Sampler::initCSV(const char *name)
      return 0;
 }
 int Sampler::writeHistory(int curr_iter) {
-     FILE* f = fopen(filename,"at");
-     for (int i = startIter; i< curr_iter; i++){
-	     for (size_t j = 0; j <  spoints.size(); j++) {
-		if (mpi_rank == spoints[j].rank) {
-			vector_t tmp_loc;
-			tmp_loc.x = spoints[j].location.dx;
-			tmp_loc.y = spoints[j].location.dy;
-			tmp_loc.z = spoints[j].location.dz;
-			fprintf(f,"%d",i);
-			csvWriteElement(f,tmp_loc);
-	for (const auto& quantity : model->quantities) {
-			if (quant->in(quantity.name)) {
-				real_t tmp;
-				int comp = 1;
-				if (quantity.isVector) comp = 3;
-				CudaMemcpy(&tmp,&gpu_buffer[(location[quantity.name] + (i - startIter)*size + totalIter*j*size)],sizeof(real_t)*comp,CudaMemcpyDeviceToHost);
-				csvWriteElement(f,tmp);
+    FILE* f = fopen(filename,"at");
+    for (int i = startIter; i< curr_iter; i++){
+	    for (size_t j = 0; j <  spoints.size(); j++) {
+			if (mpi_rank == spoints[j].rank) {
+				vector_t tmp_loc;
+				tmp_loc.x = spoints[j].location.dx;
+				tmp_loc.y = spoints[j].location.dy;
+				tmp_loc.z = spoints[j].location.dz;
+				fprintf(f,"%d",i);
+				csvWriteElement(f,tmp_loc);
+				for (const auto& quantity : model->quantities) {
+					if (quant->in(quantity.name)) {
+						real_t tmp;
+						int comp = 1;
+						if (quantity.isVector) comp = 3;
+						CudaMemcpy(&tmp,&gpu_buffer[(location[quantity.name] + (i - startIter)*size + totalIter*j*size)],sizeof(real_t)*comp,CudaMemcpyDeviceToHost);
+						std::cout << "* " << quantity.name << " = " << tmp << std::endl;
+						csvWriteElement(f,tmp);
+					}
+				}
+				fprintf(f,"\n");
 			}
 		}
-			fprintf(f,"\n");
-			}
-			}
-	       } 
-      fclose(f);
-     return 0;
+	} 
+    fclose(f);
+    return 0;
  }
 
 int Sampler::Allocate(name_set* nquantities,int start,int iter) {
@@ -68,6 +69,7 @@ int Sampler::Allocate(name_set* nquantities,int start,int iter) {
 		}
 	}
 	CudaMalloc((void**)&gpu_buffer, i*totalIter*spoints.size()*sizeof(real_t)); 
+	std::cout << "Allocation de gpu_buffer de " << i*totalIter*spoints.size()*sizeof(real_t) << std::endl;
 	size = i;
 	return 0;
 }

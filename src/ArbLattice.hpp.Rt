@@ -166,12 +166,12 @@ class ArbLattice : public LatticeBase {
     void debugDumpVTU() const;                                                                                                     /// Dump VTU info info for debug purposes
   
   public:
-    lbRegion getLocalBoundingBox() const;                                                                                          /// Compute local bounding box, assuming the arbitrary lattice is a subset of a Cartesian lattice
+    lbRegion getLocalBoundingBox() const;                                                                                          /// Compute local bounding box, assuming the arbitrary lattice is a subset of a Cartesian lattice 
     
     <?R for (q in rows(Quantities)) { 
-        ifdef(q$adjoint); ?>
-            void GetSample<?%s q$name ?>(const lbRegion& over, real_t scale,real_t* tab);
-    <?R }; 
+    ifdef(q$adjoint); ?>
+        void GetSample<?%s q$name ?>(real_t scale, real_t* buf) ;
+    <?R } ; 
     ifdef() ?>
 
     void updateAllSamples();

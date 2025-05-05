@@ -711,15 +711,13 @@ int CartLattice::setPar(const ParStruct& par_struct, double * w) {
 
 void CartLattice::resetAverage() {
 	data.reset_iter = data.iter;
-	saveImpl(Snaps[Snap], "cartesian_before_resetAverage.dat");
     <?R for (f in rows(Fields))  if (f$average) { ?>
           CudaMemset(&Snaps[Snap].block14[<?%s f$Index ?>*getLocalRegion().sizeL()],0,getLocalRegion().sizeL()*sizeof(real_t));  
 	<?R } ?>
-	saveImpl(Snaps[Snap], "cartesian_after_resetAverage.dat");
 }
 
 <?R for (q in rows(Quantities)) { ifdef(q$adjoint); ?>
-void CartLattice::GetSample<?%s q$name ?>(const lbRegion& over, real_t scale,real_t* buf)
+void CartLattice::GetSample<?%s q$name ?>(const lbRegion& over, real_t scale, real_t* buf)
 {
     launcher.container.in = Snaps[Snap];
 <?R if (q$adjoint) { ?>
@@ -728,7 +726,9 @@ void CartLattice::GetSample<?%s q$name ?>(const lbRegion& over, real_t scale,rea
     launcher.SampleQuantity<?%s q$name ?>(small, (<?%s q$type ?>*)buf, scale, data);
 }
 <?R } ;ifdef() ?>
+
 void CartLattice::updateAllSamples(){
+  std::cout << "Appel à updateAllSamples" << std::endl;
  if (sample->size != 0) {
 	for (size_t j = 0; j < sample->spoints.size(); j++) {
 		if (connectivity.mpi_rank == sample->spoints[j].rank) {

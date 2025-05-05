@@ -845,20 +845,39 @@ void ArbLattice::debugDumpVTU() const {
 void ArbLattice::resetAverage() {
 	data.reset_iter = data.iter;
 
-    saveImpl("arbitrary_before_resetAverage.dat", getSnapPtr(Snap), sizes.snaps_pitch*NF);
+    /// saveImpl("arbitrary_before_resetAverage.dat", getSnapPtr(Snap), sizes.snaps_pitch*NF);
     <?R for (f in rows(Fields))  if (f$average) { ?>
           CudaMemset(&getSnapPtr(Snap)[<?%s f$Index ?>*getLocalSize()],0,getLocalSize()*sizeof(real_t));
     <?R } ?>
-    saveImpl("arbitrary_after_resetAverage.dat", getSnapPtr(Snap), sizes.snaps_pitch*NF);
+    /// saveImpl("arbitrary_after_resetAverage.dat", getSnapPtr(Snap), sizes.snaps_pitch*NF);
 }
 
 <?R for (q in rows(Quantities)) { 
 ifdef(q$adjoint); ?>
-    void ArbLattice::GetSample<?%s q$name ?>(const lbRegion& over, real_t scale,real_t* buf)
-    {
-        launcher.container.snap_in = getSnapPtr(Snap);
-    }
+void ArbLattice::GetSample<?%s q$name ?>(real_t scale, real_t* buf)
+{
+    launcher.container.snap_in = getSnapPtr(Snap);
+    std::cout << "buf[0] avant getQuantity = " << buf[0] << std::endl;
+    launcher.getQuantity(<?%s q$Index ?>, buf, scale, data);
+    std::cout << "buf[0] après getQuantity = " << buf[0] << std::endl;
+}
 <?R } ; 
 ifdef() ?>
 
-void ArbLattice::updateAllSamples(){}
+void ArbLattice::updateAllSamples(){
+    std::cout << "Appel à updateAllSamples" << std::endl;
+    const int rank = mpitools::MPI_Rank(comm);
+    if (sample->size != 0) {
+	    for (size_t j = 0; j < sample->spoints.size(); j++) {
+		    if (rank == sample->spoints[j].rank) {
+		        <?R for (q in rows(Quantities)) { ifdef(q$adjoint); ?>
+	 	        if (sample->quant->in("<?%s q$name ?>")){
+                    double v = sample->units->alt("<?%s q$unit ?>");
+			        GetSample<?%s q$name ?>(1/v,
+                              &sample->gpu_buffer[sample->location["<?%s q$name ?>"]+(data.iter - sample->startIter)*sample->size + sample->totalIter*j*sample->size]); 
+		        }
+		        <?R }; ifdef() ?>
+	        } 
+        }
+    }
+}
