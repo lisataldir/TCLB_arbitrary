@@ -542,6 +542,8 @@ std::vector<real_t> ArbLattice::getQuantity(const Model::Quantity& q, real_t sca
     setAdjSnapIn(aSnap);
 #endif
     launcher.getQuantity(q.id, ret.data(), scale, data);
+    for (auto i = 0; i < size*comp; i++) std::cout << ret[i] << " ";
+    std::cout << std::endl;
     return ret;
 }
 
@@ -552,6 +554,8 @@ std::vector<real_t> ArbLattice::getCoord(const Model::Coord& d, real_t scale) {
         size_t j = local_permutation[i];
         ret[j] = connect.coord(d.id, i)*scale;
     }
+    for (auto i = 0; i < size; i++) std::cout << ret[i] << " ";
+    std::cout << std::endl;
     return ret;
 }
 
@@ -854,12 +858,13 @@ void ArbLattice::resetAverage() {
 
 <?R for (q in rows(Quantities)) { 
 ifdef(q$adjoint); ?>
-void ArbLattice::GetSample<?%s q$name ?>(real_t scale, real_t* buf)
+void ArbLattice::GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf)
 {
     launcher.container.snap_in = getSnapPtr(Snap);
-    std::cout << "buf[0] avant getQuantity = " << buf[0] << std::endl;
-    launcher.getQuantity(<?%s q$Index ?>, buf, scale, data);
-    std::cout << "buf[0] après getQuantity = " << buf[0] << std::endl;
+    std::cout << "buf[0] avant getSample = " << buf[0] << std::endl;
+    std::cout << "Coordonnées : " << r.dx << "x" << r.dy << "x" << r.dz << std::endl;
+    launcher.getSample(<?%s q$Index ?>, buf, scale, data);
+    std::cout << "buf[0] après getSample = " << buf[0] << std::endl;
 }
 <?R } ; 
 ifdef() ?>
@@ -873,8 +878,7 @@ void ArbLattice::updateAllSamples(){
 		        <?R for (q in rows(Quantities)) { ifdef(q$adjoint); ?>
 	 	        if (sample->quant->in("<?%s q$name ?>")){
                     double v = sample->units->alt("<?%s q$unit ?>");
-			        GetSample<?%s q$name ?>(1/v,
-                              &sample->gpu_buffer[sample->location["<?%s q$name ?>"]+(data.iter - sample->startIter)*sample->size + sample->totalIter*j*sample->size]); 
+			        GetSample<?%s q$name ?>(sample->spoints[j].location, 1/v, &sample->gpu_buffer[sample->location["<?%s q$name ?>"]+(data.iter - sample->startIter)*sample->size + sample->totalIter*j*sample->size]); 
 		        }
 		        <?R }; ifdef() ?>
 	        } 

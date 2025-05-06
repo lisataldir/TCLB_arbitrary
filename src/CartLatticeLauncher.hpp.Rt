@@ -258,6 +258,7 @@ public:
     int x = CudaBlock.x + small.dx;
     int y = CudaBlock.y + small.dy;
     int z = CudaBlock.z + small.dz;
+    std::cout << "x = " << x << ", y = " << y << ", z = " << z << std::endl;
     LA acc(x, y, z, container); <?R
     if (q$adjoint) { ?>
       Node< LA, Adjoint, NoGlobals, Get > now(acc, data); <?R
@@ -281,13 +282,16 @@ public:
 //  } else { <?R
       if (q$type == "vector_t") {
         for (coef in c("x","y","z")) { ?>
-//        w.<?%s coef ?> = nan(""); <?R
+//        w.<?%s coef ?> = nan(""); 
+          std::cout << "w = " << w.<?%s coef ?> << std::endl; <?R
         }
       } else { ?>
-//      w = nan(""); <?R
+//      w = nan(""); 
+        std::cout << "w = " << w << std::endl; <?R
       } ?>
 //  }
     buf[small.offset(x,y,z)] = w;
+    
   }
 };
 

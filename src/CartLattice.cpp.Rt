@@ -735,7 +735,7 @@ void CartLattice::updateAllSamples(){
 		<?R for (q in rows(Quantities)) { ifdef(q$adjoint); ?>
 	 	 if (sample->quant->in("<?%s q$name ?>"))
 		{
-                        double v = sample->units->alt("<?%s q$unit ?>");
+            double v = sample->units->alt("<?%s q$unit ?>");
 			GetSample<?%s q$name ?>(sample->spoints[j].location,1/v,&sample->gpu_buffer[sample->location["<?%s q$name ?>"]+(data.iter - sample->startIter)*sample->size + sample->totalIter*j*sample->size]);
 		}
 		<?R }; ifdef() ?>

@@ -170,7 +170,7 @@ class ArbLattice : public LatticeBase {
     
     <?R for (q in rows(Quantities)) { 
     ifdef(q$adjoint); ?>
-        void GetSample<?%s q$name ?>(real_t scale, real_t* buf) ;
+        void GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf) ;
     <?R } ; 
     ifdef() ?>
 
