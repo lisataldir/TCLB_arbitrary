@@ -723,7 +723,9 @@ void CartLattice::GetSample<?%s q$name ?>(const lbRegion& over, real_t scale, re
 <?R if (q$adjoint) { ?>
     launcher.container.adjin = aSnaps[aSnap]; <?R } ?>
     lbRegion small = getLocalRegion().intersect(over);
+	std::cout << "buf[0] avant getSample = " << buf[0] << std::endl;
     launcher.SampleQuantity<?%s q$name ?>(small, (<?%s q$type ?>*)buf, scale, data);
+	std::cout << "buf[0] après getSample = " << buf[0] << std::endl;
 }
 <?R } ;ifdef() ?>
 

@@ -87,14 +87,14 @@ ifdef();
 	}
 }
 
-void ArbLatticeLauncher::getSample(int quant, real_t* host_tab, real_t scale, const LatticeData& data) const {
+void ArbLatticeLauncher::getSample(int local_idx, int quant, real_t* host_tab, real_t scale, const LatticeData& data) const {
     const size_t num_nodes = container.num_border_nodes + container.num_interior_nodes;
 	switch(quant) {	<?R
 for (q in rows(Quantities)) { ifdef(q$adjoint);
 ?>
         case <?%s q$Index ?>: {
             const auto gpu_tab = cudaMakeUnique<<?%s q$type ?>>(1);
-            getSample<?%s q$name ?>(gpu_tab.get(), scale, data);
+            getSample<?%s q$name ?>(local_idx, gpu_tab.get(), scale, data);
             CudaMemcpy(host_tab, gpu_tab.get(), sizeof(<?%s q$type ?>), CudaMemcpyDeviceToHost);
             break;
         } <?R
@@ -135,15 +135,52 @@ if (q$adjoint) { ?>
             auto val = now.get<?%s q$name ?>(); <?R
 if (q$type == "vector_t") {
   for (coef in c("x","y","z")) { ?>
-            val.<?%s coef ?> *= scale; 
-            std::cout << "val = " << val.<?%s coef ?> << std::endl; <?R
+            val.<?%s coef ?> *= scale; <?R
   }
 } else { ?>
-            val *= scale; 
-            std::cout << "val = " << val << std::endl; <?R
+            val *= scale;  <?R
 } ?>
             buf[i] = val;  
         }
+    }
+};
+
+struct GetSampleArbExecutor<?%s q$name?> : public LinearExecutor {
+    ArbLatticeContainer container;
+    LatticeData data;
+
+    int local_idx;
+    <?%s q$type ?>* buf;
+    real_t scale;
+
+    CudaDeviceFunction void Execute() const {
+        using LA = ArbLatticeAccess; <?R
+        if (q$adjoint) { ?>
+            using N = Node< LA, Adjoint, NoGlobals, Get >; <?R
+        } else { ?>
+            using N = Node< LA, Primal, NoGlobals, Get >; <?R
+        }?>
+
+        
+        LA acc(local_idx, container);
+        N now(acc, data);
+        acc.pop(now); <?R
+        if (q$adjoint) { ?>
+            acc.pop_adj(now); <?R
+        } ?>
+        auto val = now.get<?%s q$name ?>(); <?R
+        if (q$type == "vector_t") {
+            for (coef in c("x","y","z")) { ?>
+                val.<?%s coef ?> *= scale; 
+                std::cout << "val = " << val.<?%s coef ?>  << std::endl; <?R
+            }
+        } else { ?>
+            val *= scale; 
+            std::cout << "val = " << val << std::endl; <?R
+        } ?>
+        buf[0] = val;  
+            
+        
     }
 };
 
@@ -152,8 +189,8 @@ void ArbLatticeLauncher::getQuantity<?%s q$name ?>(<?%s q$type ?>* tab, real_t s
     LaunchExecutor(executor);
 }
 
-void ArbLatticeLauncher::getSample<?%s q$name ?>(<?%s q$type ?>* tab, real_t scale, const LatticeData& data) const {
-    const GetQuantityArbExecutor<?%s q$name?> executor{{1}, container, data, tab, scale};
+void ArbLatticeLauncher::getSample<?%s q$name ?>(int local_idx, <?%s q$type ?>* tab, real_t scale, const LatticeData& data) const {
+    const GetSampleArbExecutor<?%s q$name?> executor{{1}, container, data, local_idx, tab, scale};
     LaunchExecutor(executor);
 }
 <?R }

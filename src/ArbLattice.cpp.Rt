@@ -861,9 +861,28 @@ ifdef(q$adjoint); ?>
 void ArbLattice::GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf)
 {
     launcher.container.snap_in = getSnapPtr(Snap);
+
+
+    std::vector<real_t> tmp (connect.getLocalSize());
+    launcher.getQuantity(<?%s q$Index ?>, tmp.data(), scale, data);
+
+    int local_idx = -1;
+    for (size_t node = 0; node != connect.getLocalSize(); ++node){
+        real_t coord_x = connect.coord(0, node) - 0.5;
+        real_t coord_y = connect.coord(1, node) - 0.5;
+        real_t coord_z = connect.coord(2, node) - 0.5;
+        std::cout << coord_x << " " << coord_y << " " << coord_z << " " << tmp[node] << std::endl;
+        if (std::abs(coord_x - r.dx) == 0 && std::abs(coord_y - r.dy) == 0 && std::abs(coord_z - r.dz) == 0) local_idx = node;
+    }
+
+    std::cout << "Index local = " << local_idx << std::endl;
+    std::cout << "Coordonnées - Valeur : " << r.dx << "x" << r.dy << "x" << r.dz << " : " << tmp[local_idx] << std::endl;
+
     std::cout << "buf[0] avant getSample = " << buf[0] << std::endl;
-    std::cout << "Coordonnées : " << r.dx << "x" << r.dy << "x" << r.dz << std::endl;
-    launcher.getSample(<?%s q$Index ?>, buf, scale, data);
+    if (local_idx != -1){
+        std::cout << "Lancement de launcher.getSample" << std::endl;
+        launcher.getSample(local_idx, <?%s q$Index ?>, buf, scale, data);
+    } 
     std::cout << "buf[0] après getSample = " << buf[0] << std::endl;
 }
 <?R } ; 
