@@ -28,14 +28,14 @@
 		<Param name="FluidAlfa" value="0.01"/>
 		<Param name="InitTemperature" value="0"/>
 		<Param name="InletTemperature" value="1"/>
-		<!-- Galilean correction should be set up to 1 -->
 	</Model>
-	<VTK/>
-	<Failcheck Iterations="1000"/>
-	<!--Checks if the solution failed every 1000 iterations-->
-	<Average Iterations="1000"/>
-	<!-- Resetting of the average values  every 1000 iterations-->
-	<Log Iterations="1000"/>
-	<VTK Iterations="1000"/>
-	<Solve Iterations="12000"/>
+
+	<Sample Iterations="1" what="P">
+		<Point dx="1m" dy="2m" dz="1m"/> 
+        <Point dx="0m" dy="0m" dz="1m"/>
+	</Sample>
+		
+	<VTK Iterations="3" what="BOUNDARY,U,P,averageP,avgU" dx="31" nx="1"/> 
+	<SaveCheckpoint Iterations="1"/>
+	<Solve Iterations="1"/>
 </CLBConfig>
