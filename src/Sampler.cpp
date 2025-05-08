@@ -45,7 +45,6 @@ int Sampler::writeHistory(int curr_iter) {
 						int comp = 1;
 						if (quantity.isVector) comp = 3;
 						CudaMemcpy(&tmp,&gpu_buffer[(location[quantity.name] + (i - startIter)*size + totalIter*j*size)],sizeof(real_t)*comp,CudaMemcpyDeviceToHost);
-						std::cout << "* " << quantity.name << " = " << tmp << std::endl;
 						csvWriteElement(f,tmp);
 					}
 				}
