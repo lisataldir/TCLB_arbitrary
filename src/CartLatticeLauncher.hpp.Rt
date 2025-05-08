@@ -285,8 +285,7 @@ public:
 //        w.<?%s coef ?> = nan(""); <?R
         }
       } else { ?>
-//      w = nan(""); 
-        std::cout << x << " " << y << " " << z << " " << w << std::endl; <?R
+//      w = nan(""); <?R
       } ?>
 //  }
     buf[small.offset(x,y,z)] = w;

@@ -69,7 +69,6 @@ int Sampler::Allocate(name_set* nquantities,int start,int iter) {
 		}
 	}
 	CudaMalloc((void**)&gpu_buffer, i*totalIter*spoints.size()*sizeof(real_t)); 
-	std::cout << "Allocation de gpu_buffer de " << i*totalIter*spoints.size() << std::endl;
 	size = i;
 	return 0;
 }

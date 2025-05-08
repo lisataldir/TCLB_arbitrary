@@ -848,12 +848,9 @@ void ArbLattice::debugDumpVTU() const {
 
 void ArbLattice::resetAverage() {
 	data.reset_iter = data.iter;
-
-    /// saveImpl("arbitrary_before_resetAverage.dat", getSnapPtr(Snap), sizes.snaps_pitch*NF);
     <?R for (f in rows(Fields))  if (f$average) { ?>
           CudaMemset(&getSnapPtr(Snap)[<?%s f$Index ?>*getLocalSize()],0,getLocalSize()*sizeof(real_t));
     <?R } ?>
-    /// saveImpl("arbitrary_after_resetAverage.dat", getSnapPtr(Snap), sizes.snaps_pitch*NF);
 }
 
 <?R for (q in rows(Quantities)) { 
@@ -861,7 +858,6 @@ ifdef(q$adjoint); ?>
 void ArbLattice::GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf)
 {
     launcher.container.snap_in = getSnapPtr(Snap);
-
 
     std::vector<real_t> tmp (connect.getLocalSize());
     launcher.getQuantity(<?%s q$Index ?>, tmp.data(), scale, data);
@@ -871,25 +867,17 @@ void ArbLattice::GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf)
         real_t coord_x = connect.coord(0, node) - 0.5;
         real_t coord_y = connect.coord(1, node) - 0.5;
         real_t coord_z = connect.coord(2, node) - 0.5;
-        std::cout << coord_x << " " << coord_y << " " << coord_z << " " << tmp[node] << std::endl;
         if (std::abs(coord_x - r.dx) == 0 && std::abs(coord_y - r.dy) == 0 && std::abs(coord_z - r.dz) == 0) local_idx = node;
     }
 
-    std::cout << "Index local = " << local_idx << std::endl;
-    std::cout << "Coordonnées - Valeur : " << r.dx << "x" << r.dy << "x" << r.dz << " : " << tmp[local_idx] << std::endl;
-
-    std::cout << "buf[0] avant getSample = " << buf[0] << std::endl;
     if (local_idx != -1){
-        std::cout << "Lancement de launcher.getSample" << std::endl;
         launcher.getSample(local_idx, <?%s q$Index ?>, buf, scale, data);
-    } 
-    std::cout << "buf[0] après getSample = " << buf[0] << std::endl;
+    } dl;
 }
 <?R } ; 
 ifdef() ?>
 
 void ArbLattice::updateAllSamples(){
-    std::cout << "Appel à updateAllSamples" << std::endl;
     const int rank = mpitools::MPI_Rank(comm);
     if (sample->size != 0) {
 	    for (size_t j = 0; j < sample->spoints.size(); j++) {

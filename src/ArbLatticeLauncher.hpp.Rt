@@ -171,12 +171,10 @@ struct GetSampleArbExecutor<?%s q$name?> : public LinearExecutor {
         auto val = now.get<?%s q$name ?>(); <?R
         if (q$type == "vector_t") {
             for (coef in c("x","y","z")) { ?>
-                val.<?%s coef ?> *= scale; 
-                std::cout << "val = " << val.<?%s coef ?>  << std::endl; <?R
+                val.<?%s coef ?> *= scale; <?R
             }
         } else { ?>
-            val *= scale; 
-            std::cout << "val = " << val << std::endl; <?R
+            val *= scale;  <?R
         } ?>
         buf[0] = val;  
             
