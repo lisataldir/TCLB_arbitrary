@@ -542,8 +542,6 @@ std::vector<real_t> ArbLattice::getQuantity(const Model::Quantity& q, real_t sca
     setAdjSnapIn(aSnap);
 #endif
     launcher.getQuantity(q.id, ret.data(), scale, data);
-    for (auto i = 0; i < size*comp; i++) std::cout << ret[i] << " ";
-    std::cout << std::endl;
     return ret;
 }
 
@@ -554,8 +552,6 @@ std::vector<real_t> ArbLattice::getCoord(const Model::Coord& d, real_t scale) {
         size_t j = local_permutation[i];
         ret[j] = connect.coord(d.id, i)*scale;
     }
-    for (auto i = 0; i < size; i++) std::cout << ret[i] << " ";
-    std::cout << std::endl;
     return ret;
 }
 
@@ -872,7 +868,7 @@ void ArbLattice::GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf)
 
     if (local_idx != -1){
         launcher.getSample(local_idx, <?%s q$Index ?>, buf, scale, data);
-    } ;
+    }
 }
 <?R } ; 
 ifdef() ?>
