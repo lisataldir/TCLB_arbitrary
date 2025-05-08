@@ -872,7 +872,7 @@ void ArbLattice::GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf)
 
     if (local_idx != -1){
         launcher.getSample(local_idx, <?%s q$Index ?>, buf, scale, data);
-    } dl;
+    } ;
 }
 <?R } ; 
 ifdef() ?>
