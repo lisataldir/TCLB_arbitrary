@@ -41,11 +41,19 @@ int Sampler::writeHistory(int curr_iter) {
 				csvWriteElement(f,tmp_loc);
 				for (const auto& quantity : model->quantities) {
 					if (quant->in(quantity.name)) {
-						real_t tmp;
-						int comp = 1;
-						if (quantity.isVector) comp = 3;
-						CudaMemcpy(&tmp,&gpu_buffer[(location[quantity.name] + (i - startIter)*size + totalIter*j*size)],sizeof(real_t)*comp,CudaMemcpyDeviceToHost);
-						csvWriteElement(f,tmp);
+						if (quantity.isVector) {
+							real_t *tmp = (real_t *)malloc(3*sizeof(real_t));
+							CudaMemcpy(tmp,&gpu_buffer[(location[quantity.name] + (i - startIter)*size + totalIter*j*size)],sizeof(real_t)*3,CudaMemcpyDeviceToHost);
+							vector_t val;
+							val.x = tmp[0];
+							val.y = tmp[1];
+							val.z = tmp[2];
+							csvWriteElement(f, val);
+						} else {
+							real_t tmp;
+							CudaMemcpy(&tmp,&gpu_buffer[(location[quantity.name] + (i - startIter)*size + totalIter*j*size)],sizeof(real_t),CudaMemcpyDeviceToHost);
+							csvWriteElement(f, tmp);
+						}
 					}
 				}
 				fprintf(f,"\n");

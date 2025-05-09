@@ -88,7 +88,6 @@ ifdef();
 }
 
 void ArbLatticeLauncher::getSample(int local_idx, int quant, real_t* host_tab, real_t scale, const LatticeData& data) const {
-    const size_t num_nodes = container.num_border_nodes + container.num_interior_nodes;
 	switch(quant) {	<?R
 for (q in rows(Quantities)) { ifdef(q$adjoint);
 ?>
@@ -140,7 +139,7 @@ if (q$type == "vector_t") {
 } else { ?>
             val *= scale;  <?R
 } ?>
-            buf[i] = val;  
+            buf[i] = val; 
         }
     }
 };
@@ -176,9 +175,7 @@ struct GetSampleArbExecutor<?%s q$name?> : public LinearExecutor {
         } else { ?>
             val *= scale;  <?R
         } ?>
-        buf[0] = val;  
-            
-        
+        buf[0] = val;       
     }
 };
 

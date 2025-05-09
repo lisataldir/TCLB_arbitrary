@@ -855,9 +855,6 @@ void ArbLattice::GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf)
 {
     launcher.container.snap_in = getSnapPtr(Snap);
 
-    std::vector<real_t> tmp (connect.getLocalSize());
-    launcher.getQuantity(<?%s q$Index ?>, tmp.data(), scale, data);
-
     int local_idx = -1;
     for (size_t node = 0; node != connect.getLocalSize(); ++node){
         real_t coord_x = connect.coord(0, node) - 0.5;
@@ -882,7 +879,7 @@ void ArbLattice::updateAllSamples(){
 	 	        if (sample->quant->in("<?%s q$name ?>")){
                     double v = sample->units->alt("<?%s q$unit ?>");
 			        GetSample<?%s q$name ?>(sample->spoints[j].location, 1/v, &sample->gpu_buffer[sample->location["<?%s q$name ?>"]+(data.iter - sample->startIter)*sample->size + sample->totalIter*j*sample->size]); 
-		        }
+                }
 		        <?R }; ifdef() ?>
 	        } 
         }
