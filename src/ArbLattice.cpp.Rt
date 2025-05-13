@@ -844,9 +844,15 @@ void ArbLattice::debugDumpVTU() const {
 
 void ArbLattice::resetAverage() {
 	data.reset_iter = data.iter;
-    <?R for (f in rows(Fields))  if (f$average) { ?>
-          CudaMemset(&getSnapPtr(Snap)[<?%s f$Index ?>*getLocalSize()],0,getLocalSize()*sizeof(real_t));
+    saveImpl("arbitrary_lattice_before_resetAverage.dat", getSnapPtr(Snap), sizes.snaps_pitch*NF);
+    std::cout << sizes.snaps_pitch << "x" << NF << std::endl;
+    <?R for (f in rows(Fields)) { ?>
+          std::cout << "<?%s f$name ?>" << std::endl;
     <?R } ?>
+    <?R for (f in rows(Fields)) if (f$average) { ?>
+          CudaMemset(&getSnapPtr(Snap)[<?%s f$Index ?>*sizes.snaps_pitch],0,getLocalSize()*sizeof(real_t));
+    <?R } ?>
+    saveImpl("arbitrary_lattice_after_resetAverage.dat", getSnapPtr(Snap), sizes.snaps_pitch*NF);
 }
 
 <?R for (q in rows(Quantities)) { 
