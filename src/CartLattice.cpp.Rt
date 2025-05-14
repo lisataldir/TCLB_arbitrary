@@ -17,6 +17,8 @@
 #include <mpi.h>
 #include <cassert>
 
+#include <sstream>
+
 #ifdef GRAPHICS
 static void MouseMove( CartLattice * data, int x, int y, int nx, int ny );
 static int MainLoop( uchar4* outputBitmap, CartLattice *d, int ticks );

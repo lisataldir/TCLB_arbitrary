@@ -14,6 +14,8 @@
 #include <numeric>
 #include <optional>
 #include <unordered_set>
+#include <sstream>
+
 
 #include "GetThreads.h"
 #include "PartitionArbLattice.hpp"
@@ -302,6 +304,12 @@ void ArbLattice::allocDeviceMemory() {
     sizes.snaps_pitch = local_sz + ghost_nodes.size() + 1;
     snaps_device = cudaMakeUnique2D<storage_t>(sizes.snaps_pitch, sizes.snaps * NF);
     node_types_device = cudaMakeUnique<flag_t>(local_sz);
+
+    // Affichage des quantités
+    std::cout << "local_sz = " << local_sz << std::endl;
+    std::cout << "sizes.snaps = " << sizes.snaps << std::endl;
+    std::cout << "ghost_nodes.size = " << ghost_nodes.size() << std::endl;
+    std::cout << "sizes.snaps_pitch = " << sizes.snaps_pitch << std::endl;
 }
 
 std::vector<ArbLattice::NodeTypeBrush> ArbLattice::parseBrushFromXml(pugi::xml_node arb_node, const std::map<std::string, int>& setting_zones) const {
@@ -843,16 +851,10 @@ void ArbLattice::debugDumpVTU() const {
 }
 
 void ArbLattice::resetAverage() {
-	data.reset_iter = data.iter;
-    saveImpl("arbitrary_lattice_before_resetAverage.dat", getSnapPtr(Snap), sizes.snaps_pitch*NF);
-    std::cout << sizes.snaps_pitch << "x" << NF << std::endl;
-    <?R for (f in rows(Fields)) { ?>
-          std::cout << "<?%s f$name ?>" << std::endl;
-    <?R } ?>
+    data.reset_iter = data.iter;
     <?R for (f in rows(Fields)) if (f$average) { ?>
-          CudaMemset(&getSnapPtr(Snap)[<?%s f$Index ?>*sizes.snaps_pitch],0,getLocalSize()*sizeof(real_t));
+        CudaMemset(&getSnapPtr(Snap)[<?%s f$Index ?>*sizes.snaps_pitch], 0, sizes.snaps_pitch*sizeof(real_t));
     <?R } ?>
-    saveImpl("arbitrary_lattice_after_resetAverage.dat", getSnapPtr(Snap), sizes.snaps_pitch*NF);
 }
 
 <?R for (q in rows(Quantities)) { 
