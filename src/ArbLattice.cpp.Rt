@@ -890,16 +890,3 @@ void ArbLattice::updateAllSamples(){
         }
     }
 }
-
-
-/// Cut-distances
-
-static void ContainerActivateCuts(ArbLatticeContainer& container)
-{
-  std::cout << "ContainerActivateCuts" << std::endl;
-}
-
-void ArbLattice::CutsOverwrite(cut_t * Q, const lbRegion& over)
-{
-	std::cout << "CutsOverwrite" << std::endl;
-}
