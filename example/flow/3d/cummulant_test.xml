@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- This is of model of a pipe flow over sphere for the d3q27_cumulant purposes -->
 <CLBConfig version="2.0" output="output/" permissive="true">
-	<Geometry nx="12" ny="10" nz="10">
+	<Geometry nx="4" ny="4" nz="4">
 		<MRT>
 			<Box/>
 		</MRT>
@@ -13,7 +13,7 @@
 		</EPressure>
 		<Wall mask="ALL">
 			<Tunnel/>
-			<Sphere dx="7" nx="3" dy="4" ny="3" dz="4" nz="3"/>
+			<Sphere dx="1" nx="1" dy="1" ny="1" dz="1" nz="1"/>
 		</Wall>
 	</Geometry>
 	<Model>
