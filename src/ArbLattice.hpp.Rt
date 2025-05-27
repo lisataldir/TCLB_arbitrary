@@ -176,6 +176,9 @@ class ArbLattice : public LatticeBase {
 
     void updateAllSamples();
     void resetAverage();
+
+    void CutsOverwrite(cut_t * Q, const lbRegion& over);
+
 };
 
 #endif  // ARBLATTICE_HPP

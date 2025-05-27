@@ -304,12 +304,6 @@ void ArbLattice::allocDeviceMemory() {
     sizes.snaps_pitch = local_sz + ghost_nodes.size() + 1;
     snaps_device = cudaMakeUnique2D<storage_t>(sizes.snaps_pitch, sizes.snaps * NF);
     node_types_device = cudaMakeUnique<flag_t>(local_sz);
-
-    // Affichage des quantités
-    std::cout << "local_sz = " << local_sz << std::endl;
-    std::cout << "sizes.snaps = " << sizes.snaps << std::endl;
-    std::cout << "ghost_nodes.size = " << ghost_nodes.size() << std::endl;
-    std::cout << "sizes.snaps_pitch = " << sizes.snaps_pitch << std::endl;
 }
 
 std::vector<ArbLattice::NodeTypeBrush> ArbLattice::parseBrushFromXml(pugi::xml_node arb_node, const std::map<std::string, int>& setting_zones) const {
@@ -323,6 +317,9 @@ std::vector<ArbLattice::NodeTypeBrush> ArbLattice::parseBrushFromXml(pugi::xml_n
         // Determine what kind of node we are parsing and update the brush accordingly
         const auto group_attr = node.attribute("group");
         const auto zone_attr = node.attribute("name");
+
+        std::cout << node.name() << "(" << group_attr.value() << ") : " << group_attr << std::endl;
+
         if (group_attr) {
             const flag_t mask = ntf_iter->group_flag | (zone_attr ? model->settingzones.flag : 0);
             const flag_t value = ntf_iter->flag | (zone_attr ? (setting_zones.at(zone_attr.value()) << model->settingzones.shift) : 0);
@@ -863,16 +860,16 @@ void ArbLattice::GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf)
 {
     launcher.container.snap_in = getSnapPtr(Snap);
 
-    int local_idx = -1;
+    int lid = -1;
     for (size_t node = 0; node != connect.getLocalSize(); ++node){
-        real_t coord_x = connect.coord(0, node) - 0.5;
-        real_t coord_y = connect.coord(1, node) - 0.5;
-        real_t coord_z = connect.coord(2, node) - 0.5;
-        if (std::abs(coord_x - r.dx) == 0 && std::abs(coord_y - r.dy) == 0 && std::abs(coord_z - r.dz) == 0) local_idx = node;
+        real_t coord_x = connect.coord(0, node) - .5;
+        real_t coord_y = connect.coord(1, node) - .5;
+        real_t coord_z = connect.coord(2, node) - .5;
+        if (std::abs(coord_x - r.dx) == 0 && std::abs(coord_y - r.dy) == 0 && std::abs(coord_z - r.dz) == 0) lid = node;
     }
 
-    if (local_idx != -1){
-        launcher.getSample(local_idx, <?%s q$Index ?>, buf, scale, data);
+    if (lid != -1){
+        launcher.getSample(lid, <?%s q$Index ?>, buf, scale, data);
     }
 }
 <?R } ; 
@@ -892,4 +889,17 @@ void ArbLattice::updateAllSamples(){
 	        } 
         }
     }
+}
+
+
+/// Cut-distances
+
+static void ContainerActivateCuts(ArbLatticeContainer& container)
+{
+  std::cout << "ContainerActivateCuts" << std::endl;
+}
+
+void ArbLattice::CutsOverwrite(cut_t * Q, const lbRegion& over)
+{
+	std::cout << "CutsOverwrite" << std::endl;
 }

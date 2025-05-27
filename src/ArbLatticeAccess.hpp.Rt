@@ -86,10 +86,9 @@ class ArbLatticeAccess {
     CudaDeviceFunction real_t getY() const { return getDim(1); }
     CudaDeviceFunction real_t getZ() const { return getDim(2); }
     CudaDeviceFunction flag_t getNodeType() const { return node_type; }
-    CudaDeviceFunction cut_t getQ(int) const { /// TODO
-        printf("Cuts not implemented for arbitrary lattice");
-        assert(false);
-        return NO_CUT;
+    CudaDeviceFunction cut_t getQ(int d) const { 
+        // std::cout << "getQ()" << std::endl;
+        return 0;
     }
 <?R
 for (f in rows(Fields)) { ?>
