@@ -201,6 +201,12 @@ void ArbLattice::readFromCxn(const std::string& cxn_path) {
                 file >> zone;
             }
 
+            // Read cut-distances
+            for (size_t d = 0; d != 26; ++d) {
+                auto& cut = connect.cut_distance(d, local_node_ind);
+                file >> cut;
+            }
+
             check_file_ok("Failed to read node data");
         }
     });
@@ -317,9 +323,6 @@ std::vector<ArbLattice::NodeTypeBrush> ArbLattice::parseBrushFromXml(pugi::xml_n
         // Determine what kind of node we are parsing and update the brush accordingly
         const auto group_attr = node.attribute("group");
         const auto zone_attr = node.attribute("name");
-
-        std::cout << node.name() << "(" << group_attr.value() << ") : " << group_attr << std::endl;
-
         if (group_attr) {
             const flag_t mask = ntf_iter->group_flag | (zone_attr ? model->settingzones.flag : 0);
             const flag_t value = ntf_iter->flag | (zone_attr ? (setting_zones.at(zone_attr.value()) << model->settingzones.shift) : 0);
@@ -328,6 +331,7 @@ std::vector<ArbLattice::NodeTypeBrush> ArbLattice::parseBrushFromXml(pugi::xml_n
             if (label_iter == label_to_ind_map.end())
                 throw std::runtime_error{formatAsString("The required label %s is missing from the .cxn file", group_name)};
             const auto label = label_iter->second;
+            std::cout << label << std::endl;
             const auto has_label = [label](Span<const ArbLatticeConnectivity::ZoneIndex> labels, std::array<double, 3>) {
                 return std::find(labels.begin(), labels.end(), label) != labels.end();
             };
@@ -859,6 +863,8 @@ ifdef(q$adjoint); ?>
 void ArbLattice::GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf)
 {
     launcher.container.snap_in = getSnapPtr(Snap);
+    std::cout << "Point recherché : (" << r.dx << ", " << r.dy << ", " << r.dz << ")" << std::endl;
+    std::cout << "Coordonnées du premier point : (" << connect.coord(0,0)-.5 << ", " << connect.coord(1,0)-.5 << ", " << connect.coord(2,0)-.5 << ")" << std::endl;
 
     int lid = -1;
     for (size_t node = 0; node != connect.getLocalSize(); ++node){

@@ -14,6 +14,7 @@ struct ArbLatticeConnectivity {
     std::unique_ptr<Index[]> og_index;
     std::unique_ptr<Index[]> nbrs;
     std::unique_ptr<ZoneIndex[]> zones_per_node;
+    std::unique_ptr<int[]> cuts;
     std::vector<ZoneIndex> zones;
     double grid_size{};
 
@@ -26,7 +27,8 @@ struct ArbLatticeConnectivity {
           coords(std::make_unique<double[]>(3 * (chunk_end_ - chunk_begin_))),
           og_index(std::make_unique<Index[]>(chunk_end_ - chunk_begin_)),
           nbrs(std::make_unique<Index[]>((chunk_end_ - chunk_begin_) * Q)),
-          zones_per_node(std::make_unique<ZoneIndex[]>(chunk_end_ - chunk_begin_)) {
+          zones_per_node(std::make_unique<ZoneIndex[]>(chunk_end_ - chunk_begin_)),
+          cuts(std::make_unique<int[]>(26 * (chunk_end_ - chunk_begin_))) {
         zones.reserve(getLocalSize());
     }
 
@@ -53,6 +55,8 @@ struct ArbLatticeConnectivity {
     double coord(size_t dim, size_t local_node_ind) const { return coords[local_node_ind + dim * getLocalSize()]; }
     Index& neighbor(size_t q, size_t local_node_ind) { return nbrs[local_node_ind + q * getLocalSize()]; }
     Index neighbor(size_t q, size_t local_node_ind) const { return nbrs[local_node_ind + q * getLocalSize()]; }
+    int& cut_distance(size_t d, size_t local_node_ind) { return cuts[local_node_ind + d * getLocalSize()]; }
+    int cut_distance(size_t d, size_t local_node_ind) const { return cuts[local_node_ind + d * getLocalSize()]; }
 };
 
 inline auto computeInitialNodeDist(size_t num_nodes_global, size_t comm_size) -> std::vector<long> {

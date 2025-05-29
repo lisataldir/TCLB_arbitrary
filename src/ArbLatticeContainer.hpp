@@ -29,6 +29,9 @@ struct ArbLatticeContainer {
     // Utilities to facilitate the dynamic lookup of the offset direction index
     int dynamic_offset_lookup_table[Model_m::stencil_box_sz];
     OffsetDir stencil_offset, stencil_size;
+
+    // Cut-distances
+    cut_t* Q;
 };
 
 static_assert(std::is_trivially_copyable<ArbLatticeContainer>::value, "ArbLatticeContainer must be trivially copyable");
