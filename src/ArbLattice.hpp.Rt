@@ -62,7 +62,7 @@ class ArbLattice : public LatticeBase {
     };
 
    private:
-    ArbLatticeConnectivity connect;                         /// Lattice connectivity info
+    // ArbLatticeConnectivity connect;                         /// Lattice connectivity info
     std::vector<long> global_node_dist;                     /// Node distribution (in the ParMETIS sense), describing the GID node intervals owned by each process (identical in all ranks)
     std::vector<long> ghost_nodes;                          /// Sorted GIDs of ghost nodes
     SizeInfo sizes{};                                       /// Sizes of various data structures/allocations
@@ -80,6 +80,7 @@ class ArbLattice : public LatticeBase {
     pugi::xml_node initialized_from;                        /// XML node from which this node was initialized - avoid reinitialization if called multiple times with the same arguments
     std::string debug_name;                                 /// Prefix of debug files. Debug files are dumped if debug_name != ""
    public:
+    ArbLatticeConnectivity connect;                         /// Lattice connectivity info
     std::unique_ptr<Sampler> sample;                        /// initializing sample with zero size
     static constexpr size_t Q = Model_m::Q;    /// Stencil size
     static constexpr size_t NF = Model_m::NF;  /// Number of fields
@@ -177,6 +178,7 @@ class ArbLattice : public LatticeBase {
     void updateAllSamples();
     void resetAverage();
 
+    void CutsOverwrite(cut_t * Q);
 };
 
 #endif  // ARBLATTICE_HPP

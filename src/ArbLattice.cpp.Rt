@@ -16,7 +16,6 @@
 #include <unordered_set>
 #include <sstream>
 
-
 #include "GetThreads.h"
 #include "PartitionArbLattice.hpp"
 #include "mpitools.hpp"
@@ -331,7 +330,6 @@ std::vector<ArbLattice::NodeTypeBrush> ArbLattice::parseBrushFromXml(pugi::xml_n
             if (label_iter == label_to_ind_map.end())
                 throw std::runtime_error{formatAsString("The required label %s is missing from the .cxn file", group_name)};
             const auto label = label_iter->second;
-            std::cout << label << std::endl;
             const auto has_label = [label](Span<const ArbLatticeConnectivity::ZoneIndex> labels, std::array<double, 3>) {
                 return std::find(labels.begin(), labels.end(), label) != labels.end();
             };
@@ -863,14 +861,11 @@ ifdef(q$adjoint); ?>
 void ArbLattice::GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf)
 {
     launcher.container.snap_in = getSnapPtr(Snap);
-    std::cout << "Point recherché : (" << r.dx << ", " << r.dy << ", " << r.dz << ")" << std::endl;
-    std::cout << "Coordonnées du premier point : (" << connect.coord(0,0)-.5 << ", " << connect.coord(1,0)-.5 << ", " << connect.coord(2,0)-.5 << ")" << std::endl;
-
     int lid = -1;
     for (size_t node = 0; node != connect.getLocalSize(); ++node){
-        real_t coord_x = connect.coord(0, node) - .5;
-        real_t coord_y = connect.coord(1, node) - .5;
-        real_t coord_z = connect.coord(2, node) - .5;
+        real_t coord_x = connect.coord(0, node);
+        real_t coord_y = connect.coord(1, node);
+        real_t coord_z = connect.coord(2, node);
         if (std::abs(coord_x - r.dx) == 0 && std::abs(coord_y - r.dy) == 0 && std::abs(coord_z - r.dz) == 0) lid = node;
     }
 
@@ -893,6 +888,35 @@ void ArbLattice::updateAllSamples(){
                 }
 		        <?R }; ifdef() ?>
 	        } 
+        }
+    }
+}
+
+static void ContainerActivateCuts(ArbLatticeContainer& container){
+  if (!container.Q) {
+    void * tmp;
+    size_t size = (size_t) container.coords_pitch*sizeof(cut_t)*26;
+    debug2("Allocating: %ld b\n", size);
+    CudaMalloc( (void**)&tmp, size );
+    debug1("got address: (%p - %p)\n", tmp, (unsigned char*)tmp+size);
+    CudaMemset( tmp, 0, size );
+    container.Q = (cut_t*)tmp;
+  }
+}
+
+void ArbLattice::CutsOverwrite(cut_t * Q)
+{
+	if (Q == NULL) return;
+    ContainerActivateCuts(launcher.container);
+    for (int i=0; i < launcher.container.coords_pitch; i++){
+        for (int d = 0; d<26; d++){
+            CudaMemcpy2D(&launcher.container.Q[d*connect.getLocalSize() + i], 
+                        sizeof(cut_t),
+                        &Q[d*connect.getLocalSize() + i], 
+                        sizeof(cut_t), 
+                        sizeof(cut_t), 
+                        1, 
+                        CudaMemcpyHostToDevice);
         }
     }
 }

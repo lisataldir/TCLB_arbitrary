@@ -449,7 +449,6 @@ void CartLattice::CutsOverwrite(cut_t * Q, const lbRegion& over)
         {
                 CudaMemcpy2D(&launcher.container.Q[getLocalRegion().offsetL(x,y,z)+d*regsize], sizeof(cut_t), &Q[over.offsetL(x,y,z)+oversize*d], sizeof(cut_t), sizeof(cut_t), inter.nx, CudaMemcpyHostToDevice);
         }
-
 }
 
 /// Get NodeType's from a region
