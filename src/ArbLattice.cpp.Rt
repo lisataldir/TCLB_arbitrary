@@ -371,6 +371,13 @@ std::vector<real_t> ArbLattice::computeCoords() const {
     return retval;
 }
 
+std::vector<cut_t> computeCutDistances() const {
+    const auto local_sz = connect.getLocalSize();
+    std::vector<cut_t> retval(sizes.coords_pitch * 26);
+    // TODO : fill retval
+    return retval;
+}
+
 unsigned int ArbLattice::lookupLocalGhostIndex(ArbLatticeConnectivity::Index gid) const {
     const unsigned local_sz = connect.getLocalSize();
     const auto it = std::lower_bound(ghost_nodes.begin(), ghost_nodes.end(), gid);
