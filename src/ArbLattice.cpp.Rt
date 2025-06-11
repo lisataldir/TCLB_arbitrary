@@ -306,6 +306,7 @@ void ArbLattice::allocDeviceMemory() {
     neighbors_device = cudaMakeUnique2D<unsigned>(sizes.neighbors_pitch, Q);
     sizes.coords_pitch = local_sz;
     coords_device = cudaMakeUnique2D<real_t>(sizes.coords_pitch, 3);
+    cut_distances_device = cudaMakeUnique2D<cut_t>(sizes.coords_pitch, 26);
     sizes.snaps_pitch = local_sz + ghost_nodes.size() + 1;
     snaps_device = cudaMakeUnique2D<storage_t>(sizes.snaps_pitch, sizes.snaps * NF);
     node_types_device = cudaMakeUnique<flag_t>(local_sz);
@@ -371,10 +372,14 @@ std::vector<real_t> ArbLattice::computeCoords() const {
     return retval;
 }
 
-std::vector<cut_t> computeCutDistances() const {
+std::vector<cut_t> ArbLattice::computeCutDistances() const {
     const auto local_sz = connect.getLocalSize();
     std::vector<cut_t> retval(sizes.coords_pitch * 26);
-    // TODO : fill retval
+    for (size_t d = 0; d != 26; ++d) {
+        size_t i = 0;
+        for (; i != local_sz; ++i) retval[local_permutation[i] + d * sizes.coords_pitch] = connect.cut_distance(d, i);
+        for (; i != sizes.coords_pitch; ++i) retval[i + d * sizes.coords_pitch] = std::numeric_limits<cut_t>::signaling_NaN();  // padding
+    }
     return retval;
 }
 
@@ -413,6 +418,8 @@ void ArbLattice::initDeviceData(pugi::xml_node arb_node, const std::map<std::str
     copyVecToDeviceAsync(neighbors_device.get(), nbrs, inStream);
     const auto coords = computeCoords();
     copyVecToDeviceAsync(coords_device.get(), coords, inStream);
+    const auto cuts = computeCutDistances();
+    copyVecToDeviceAsync(cut_distances_device.get(), cuts, inStream);
     CudaStreamSynchronize(inStream);
 }
 
