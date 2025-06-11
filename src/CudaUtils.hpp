@@ -7,6 +7,9 @@
 #include "GetThreads.h"
 #include "types.h"
 
+#include <iostream>
+#include <stdexcept>
+
 namespace detail {
 template <typename T>
 struct CudaDeleter {
@@ -54,7 +57,12 @@ CudaUniquePtr<T> cudaMakeUnique2D(size_t& num_cols, size_t num_rows) {
 /// \param vec source host vector
 template <typename T, typename Alloc>
 void copyVecToDevice(T* device_ptr, const std::vector<T, Alloc>& vec) {
-    CudaMemcpy(device_ptr, vec.data(), vec.size() * sizeof(T), CudaMemcpyHostToDevice);
+    try {
+        CudaMemcpy(device_ptr, vec.data(), vec.size() * sizeof(T), CudaMemcpyHostToDevice);
+    } catch (const std::invalid_argument &e) {
+        std::cerr << "Erreur: " << e.what() << std::endl;
+    }
+    
 }
 
 /// Copy std::vector to device asynchronously

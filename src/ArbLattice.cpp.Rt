@@ -378,7 +378,6 @@ std::vector<cut_t> ArbLattice::computeCutDistances() const {
     for (size_t d = 0; d != 26; ++d) {
         size_t i = 0;
         for (; i != local_sz; ++i) retval[local_permutation[i] + d * sizes.coords_pitch] = connect.cut_distance(d, i);
-        for (; i != sizes.coords_pitch; ++i) retval[i + d * sizes.coords_pitch] = std::numeric_limits<cut_t>::signaling_NaN();  // padding
     }
     return retval;
 }
