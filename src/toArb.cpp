@@ -120,10 +120,11 @@ static int writeArbLatticeNodes(const Geometry& geo,
                         if (zone_flag == zf) file << gz_ind << ' ';
                         ++gz_ind;
                     }
-                for (int i=0; i < 26; i++){
-                    const cut_t q = geo.Q[current_lin_pos*26 + i];
-                    file << q << ' ';
-                }
+                if (geo.Q)
+                    for (int i=0; i < 26; i++){
+                        const cut_t q = geo.Q[current_lin_pos*26 + i];
+                        file << q << ' ';
+                    }
                 file << '\n';
                 if (!file.good()) break;  // Fail early
             }
