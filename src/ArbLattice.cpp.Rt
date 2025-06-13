@@ -419,8 +419,10 @@ void ArbLattice::initDeviceData(pugi::xml_node arb_node, const std::map<std::str
     copyVecToDeviceAsync(neighbors_device.get(), nbrs, inStream);
     const auto coords = computeCoords();
     copyVecToDeviceAsync(coords_device.get(), coords, inStream);
+    #ifdef OPTIONS_IB
     const auto cuts = computeCutDistances();
     copyVecToDeviceAsync(cut_distances_device.get(), cuts, inStream);
+    #endif
     CudaStreamSynchronize(inStream);
 }
 
