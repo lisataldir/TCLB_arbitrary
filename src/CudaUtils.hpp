@@ -57,12 +57,7 @@ CudaUniquePtr<T> cudaMakeUnique2D(size_t& num_cols, size_t num_rows) {
 /// \param vec source host vector
 template <typename T, typename Alloc>
 void copyVecToDevice(T* device_ptr, const std::vector<T, Alloc>& vec) {
-    try {
-        CudaMemcpy(device_ptr, vec.data(), vec.size() * sizeof(T), CudaMemcpyHostToDevice);
-    } catch (const std::invalid_argument &e) {
-        std::cerr << "Erreur: " << e.what() << std::endl;
-    }
-    
+    CudaMemcpy(device_ptr, vec.data(), vec.size() * sizeof(T), CudaMemcpyHostToDevice);  
 }
 
 /// Copy std::vector to device asynchronously
@@ -73,7 +68,11 @@ void copyVecToDevice(T* device_ptr, const std::vector<T, Alloc>& vec) {
 /// \param stream execution stream
 template <typename T, typename Alloc>
 void copyVecToDeviceAsync(T* device_ptr, const std::vector<T, Alloc>& vec, CudaStream_t stream) {
-    CudaMemcpyAsync(device_ptr, vec.data(), vec.size() * sizeof(T), CudaMemcpyHostToDevice, stream);
+    try {
+        CudaMemcpyAsync(device_ptr, vec.data(), vec.size() * sizeof(T), CudaMemcpyHostToDevice, stream);
+    } catch (const std::invalid_argument &e) {
+        std::cerr << "Erreur: " << e.what() << std::endl;
+    }
 }
 
 /// std::fill_n executed in device memory
