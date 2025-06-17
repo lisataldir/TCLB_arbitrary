@@ -93,6 +93,9 @@ static int writeArbLatticeNodes(const Geometry& geo,
                 const double z_coord = (static_cast<double>(z) + .5) * spacing;
                 file << x_coord << ' ' << y_coord << ' ' << z_coord << ' ';
 
+                // Cartesian index
+                file << lin_pos << ' ';
+
                 // Neighbors
                 for (const auto [dx, dy, dz] : Model_m::offset_directions) {
                     const auto lin_pos_offset = linPosBoundschecked(x + dx, y + dy, z + dz, nx, ny, nz);

@@ -492,7 +492,6 @@ cut_t calcCut(STL_tri tri, double x, double y, double z, double dx, double dy, d
 	return r[3]*CUT_MAX;
 }
 
-
 /// Load STL file
 inline int Geometry::loadSTL(lbRegion reg, pugi::xml_node n)
 {

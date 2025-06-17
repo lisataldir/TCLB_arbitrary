@@ -44,7 +44,7 @@ int cbSample::Init () {
 		lattice->sample->mpi_rank = solver->mpi_rank;
 		lattice->sample->Allocate(&s,startIter,everyIter);
 		lattice->sample->initCSV(filename.c_str());
-        return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 	};
 
     const auto init_arbitrary = [&](const Lattice<ArbLattice>* lattice) {
@@ -64,7 +64,7 @@ int cbSample::Init () {
             loc.dz = solver->units.alt(attr.value());
           }
           loc = lattice->getLocalBoundingBox().intersect(loc);
-          if (loc.nx == 1) lattice->sample->addPoint(loc, solver->mpi_rank);
+          if (loc.nx == 1)  lattice->sample->addPoint(loc, solver->mpi_rank);
         } else {
           error("Uknown element in Sampler\n");
           return -1;
@@ -84,12 +84,12 @@ int cbSample::Init () {
 int cbSample::DoIt () {
 	Callback::DoIt();
     const auto do_cartesian = [&](const Lattice<CartLattice>* lattice) {
-      lattice->sample->writeHistory(lattice->sample->totalIter);
+      lattice->sample->writeHistory(solver->iter);
       lattice->sample->startIter = solver->iter;
       return EXIT_SUCCESS;
     };
     const auto do_arbitrary = [&](const Lattice<ArbLattice>* lattice) {
-      lattice->sample->writeHistory(lattice->sample->totalIter);
+      lattice->sample->writeHistory(solver->iter);
       lattice->sample->startIter = solver->iter;
       return EXIT_SUCCESS;
     };
