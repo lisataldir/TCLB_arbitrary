@@ -921,6 +921,10 @@ static void ContainerActivateCuts(ArbLatticeContainer& container){
     debug2("Allocating: %ld b\n", size);
     CudaMalloc( (void**)&tmp, size );
     debug1("got address: (%p - %p)\n", tmp, (unsigned char*)tmp+size);
+    cudaError_t err = cudaMalloc((void**)&tmp, size);
+    if (err != cudaSuccess) {
+        fprintf(stderr, "cudaMalloc failed: %s\n", cudaGetErrorString(err));
+    }
     CudaMemset( tmp, 0, size );
     container.Q = (cut_t*)tmp;
   }
@@ -932,13 +936,22 @@ void ArbLattice::CutsOverwrite(cut_t * Q)
     ContainerActivateCuts(launcher.container);
     for (int i=0; i < launcher.container.coords_pitch; i++){
         for (int d = 0; d<26; d++){
-            CudaMemcpy2D(&launcher.container.Q[d*connect.getLocalSize() + i], 
-                        sizeof(cut_t),
-                        &Q[d*connect.getLocalSize() + i], 
-                        sizeof(cut_t), 
-                        sizeof(cut_t), 
-                        1, 
-                        CudaMemcpyHostToDevice);
+            // CudaMemcpy2D(&launcher.container.Q[d*connect.getLocalSize() + i], 
+            //            sizeof(cut_t),
+            //            &Q[d*connect.getLocalSize() + i], 
+            //            sizeof(cut_t), 
+            //            sizeof(cut_t), 
+            //            1, 
+            //            CudaMemcpyHostToDevice);
+            CudaMemcpy(&launcher.container.Q[d * connect.getLocalSize() + i],
+                       &Q[d * connect.getLocalSize() + i],
+                       sizeof(cut_t),
+                       CudaMemcpyHostToDevice);
+            if (err != cudaSuccess) {
+                fprintf(stderr, "CudaMemcpy2D failed at %s:%d with error: %s\n", 
+                __FILE__, __LINE__, cudaGetErrorString(err));
+            }
+
         }
     }
 }
