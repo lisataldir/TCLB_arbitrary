@@ -181,6 +181,8 @@ class ArbLattice : public LatticeBase {
     void resetAverage();
 
     void CutsOverwrite(cut_t * Q);
+
+    void coordsCSV(const std::vector<real_t>& tab, const std::string& nomFichier);
 };
 
 #endif  // ARBLATTICE_HPP
