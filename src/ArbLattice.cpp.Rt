@@ -391,6 +391,7 @@ std::vector<cut_t> ArbLattice::computeCutDistances() const {
     for (size_t d = 0; d != 26; ++d) {
         size_t i = 0;
         for (; i != local_sz; ++i) retval[local_permutation[i] + d * sizes.coords_pitch] = connect.cut_distance(d, i);
+        for (; i != sizes.coords_pitch; ++i) retval[i + d * sizes.coords_pitch] = std::numeric_limits<cut_t>::signaling_NaN();  // padding
     }
     return retval;
 }
@@ -422,6 +423,28 @@ std::vector<unsigned> ArbLattice::computeNeighbors() const {
     return retval;
 }
 
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+
+void ArbLattice::coordsCSV(const std::vector<real_t>& tab, const std::string& file) {
+    std::ofstream fd(file);
+    if (fd.is_open()) {
+        for (size_t i = 0; i < sizes.coords_pitch; ++i) {
+            for (size_t d = 0; d < 3; ++d) {
+                fd << tab[i + d*sizes.coords_pitch];
+                if (d < 2) {
+                    fd << ",";
+                }
+            }
+            fd << "\n";
+        }
+        fd.close();
+        std::cout << "Coords save in " << file << std::endl;
+    }
+}
+
 void ArbLattice::initDeviceData(pugi::xml_node arb_node, const std::map<std::string, int>& setting_zones) {
     fillWithStorageNaNAsync(snaps_device.get(), sizes.snaps_pitch * sizes.snaps * NF, inStream);
     computeNodeTypesOnHost(arb_node, setting_zones, /*permute*/ true);
@@ -429,6 +452,7 @@ void ArbLattice::initDeviceData(pugi::xml_node arb_node, const std::map<std::str
     const auto nbrs = computeNeighbors();
     copyVecToDeviceAsync(neighbors_device.get(), nbrs, inStream);
     const auto coords = computeCoords();
+    coordsCSV(coords, "coords.csv");
     copyVecToDeviceAsync(coords_device.get(), coords, inStream);
     #ifdef OPTIONS_IB
     const auto cuts = computeCutDistances();
@@ -589,8 +613,6 @@ std::vector<real_t> ArbLattice::getCoord(const Model::Coord& d, real_t scale) {
     }
     return ret;
 }
-
-#include <iostream>
 
 void ArbLattice::initCommManager() {
     if (mpitools::MPI_Size(comm) == 1) return;
@@ -921,10 +943,6 @@ static void ContainerActivateCuts(ArbLatticeContainer& container){
     debug2("Allocating: %ld b\n", size);
     CudaMalloc( (void**)&tmp, size );
     debug1("got address: (%p - %p)\n", tmp, (unsigned char*)tmp+size);
-    cudaError_t err = cudaMalloc((void**)&tmp, size);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed: %s\n", cudaGetErrorString(err));
-    }
     CudaMemset( tmp, 0, size );
     container.Q = (cut_t*)tmp;
   }
@@ -947,10 +965,6 @@ void ArbLattice::CutsOverwrite(cut_t * Q)
                        &Q[d * connect.getLocalSize() + i],
                        sizeof(cut_t),
                        CudaMemcpyHostToDevice);
-            if (err != cudaSuccess) {
-                fprintf(stderr, "CudaMemcpy2D failed at %s:%d with error: %s\n", 
-                __FILE__, __LINE__, cudaGetErrorString(err));
-            }
 
         }
     }
