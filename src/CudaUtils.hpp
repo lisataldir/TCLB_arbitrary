@@ -68,11 +68,7 @@ void copyVecToDevice(T* device_ptr, const std::vector<T, Alloc>& vec) {
 /// \param stream execution stream
 template <typename T, typename Alloc>
 void copyVecToDeviceAsync(T* device_ptr, const std::vector<T, Alloc>& vec, CudaStream_t stream) {
-    try {
-        CudaMemcpyAsync(device_ptr, vec.data(), vec.size() * sizeof(T), CudaMemcpyHostToDevice, stream);
-    } catch (const std::invalid_argument &e) {
-        std::cerr << "Erreur: " << e.what() << std::endl;
-    }
+    CudaMemcpyAsync(device_ptr, vec.data(), vec.size() * sizeof(T), CudaMemcpyHostToDevice, stream);
 }
 
 /// std::fill_n executed in device memory

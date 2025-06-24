@@ -423,28 +423,6 @@ std::vector<unsigned> ArbLattice::computeNeighbors() const {
     return retval;
 }
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-
-void ArbLattice::coordsCSV(const std::vector<real_t>& tab, const std::string& file) {
-    std::ofstream fd(file);
-    if (fd.is_open()) {
-        for (size_t i = 0; i < sizes.coords_pitch; ++i) {
-            for (size_t d = 0; d < 3; ++d) {
-                fd << tab[i + d*sizes.coords_pitch];
-                if (d < 2) {
-                    fd << ",";
-                }
-            }
-            fd << "\n";
-        }
-        fd.close();
-        std::cout << "Coords save in " << file << std::endl;
-    }
-}
-
 void ArbLattice::initDeviceData(pugi::xml_node arb_node, const std::map<std::string, int>& setting_zones) {
     fillWithStorageNaNAsync(snaps_device.get(), sizes.snaps_pitch * sizes.snaps * NF, inStream);
     computeNodeTypesOnHost(arb_node, setting_zones, /*permute*/ true);
@@ -452,7 +430,6 @@ void ArbLattice::initDeviceData(pugi::xml_node arb_node, const std::map<std::str
     const auto nbrs = computeNeighbors();
     copyVecToDeviceAsync(neighbors_device.get(), nbrs, inStream);
     const auto coords = computeCoords();
-    coordsCSV(coords, "coords.csv");
     copyVecToDeviceAsync(coords_device.get(), coords, inStream);
     #ifdef OPTIONS_IB
     const auto cuts = computeCutDistances();
