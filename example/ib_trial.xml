@@ -1,6 +1,6 @@
 
 <?xml version="1.0"?>
-<CLBConfig version="2.0" output="output/ib_sample_trial/" permissive="true">
+<CLBConfig version="2.0" output="output/ib_trial/" permissive="true">
 	<Units>
 		<Param name="density" value="1.229kg/m3" gauge="1"/>
 		<Param name="size" value="26e-3m" gauge="32"/>

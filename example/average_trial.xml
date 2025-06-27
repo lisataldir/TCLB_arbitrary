@@ -34,11 +34,11 @@
 		<Point dx="7" dy="4" dz="4"/>
 	</Sample>
 	<VTK/>
-	<Failcheck Iterations="10"/>
-	<!--Checks if the solution failed every 1000 iterations-->
-	<Average Iterations="10"/>
+	<!--Failcheck Iterations="10"/-->
+	<!--Checks if the solution failed every 10 iterations-->
+	<Average Iterations="100"/>
 	<!-- Resetting of the average values  every 10 iterations-->
 	<Log Iterations="10"/>
 	<VTK Iterations="10"/>
-	<Solve Iterations="30"/>
+	<Solve Iterations="500"/>
 </CLBConfig>
