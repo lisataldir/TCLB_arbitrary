@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- This is of model of a pipe flow over sphere for the d3q27_cumulant purposes -->
 <CLBConfig version="2.0" output="output/" permissive="true">
-	<Geometry nx="4" ny="4" nz="4">
+	<Geometry nx="51" ny="12" nz="12">
 		<MRT>
 			<Box/>
 		</MRT>
@@ -13,7 +13,7 @@
 		</EPressure>
 		<Wall mask="ALL">
 			<Tunnel/>
-			<Sphere dx="1" nx="1" dy="1" ny="1" dz="1" nz="1"/>
+			<Sphere dx="7" nx="3" dy="4" ny="3" dz="4" nz="3"/>
 		</Wall>
 	</Geometry>
 	<Model>
@@ -28,14 +28,17 @@
 		<Param name="FluidAlfa" value="0.01"/>
 		<Param name="InitTemperature" value="0"/>
 		<Param name="InletTemperature" value="1"/>
+		<!-- Galilean correction should be set up to 1 -->
 	</Model>
-
-	<Sample Iterations="1" what="P">
-		<Point dx="1m" dy="2m" dz="1m"/> 
-        <Point dx="0m" dy="0m" dz="1m"/>
+	<Sample Iterations="10" what="P,averageP">
+		<Point dx="7" dy="4" dz="4"/>
 	</Sample>
-		
-	<VTK Iterations="3" what="BOUNDARY,U,P,averageP,avgU" dx="31" nx="1"/> 
-	<SaveCheckpoint Iterations="1"/>
-	<Solve Iterations="1"/>
+	<VTK/>
+	<Failcheck Iterations="10"/>
+	<!--Checks if the solution failed every 1000 iterations-->
+	<Average Iterations="10"/>
+	<!-- Resetting of the average values  every 10 iterations-->
+	<Log Iterations="10"/>
+	<VTK Iterations="10"/>
+	<Solve Iterations="30"/>
 </CLBConfig>

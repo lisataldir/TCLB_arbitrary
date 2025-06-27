@@ -1,0 +1,37 @@
+
+<?xml version="1.0"?>
+<CLBConfig version="2.0" output="output/sample_trial/" permissive="true">
+	<Units>
+		<Param name="density" value="1.229kg/m3" gauge="1"/>
+		<Param name="size" value="26e-3m" gauge="32"/>
+		<Param name="nu" value="1.408e-5m2/s" gauge="0.00029"/>
+	</Units>
+
+	<Geometry nx="26e-3m" ny="90e-3m" nz="193e-3m">
+		<MRT>
+			<Box/>
+		</MRT>
+
+		<SVelocity name="velocity_in">
+			<Box ny="2"/>
+		</SVelocity>
+		<BPressure name="pressure">
+			<Box nz="2"/>
+		</BPressure>
+		<Wall mask="ALL">
+			<STL file="Cheng-model.stl" scale="1e-3m" x="12.749e-3m" y="-0.268929e-3m" z="170.765e-3m" side="out"/>
+		</Wall>
+	</Geometry>
+
+	<Model>
+		<Param name="Velocity" value="1.587m/s" zone="velocity_in"/>
+		<Param name="nu" value="1.408e-5m2/s"/>
+	</Model>
+
+    <Sample Iterations="10" what="P,averageP">
+        <Point dx="12e-3m" dy="70.21e-3m" dz="113.95e-3m"/>
+    </Sample>
+
+    <Solve Iterations="10"/>
+
+</CLBConfig>
