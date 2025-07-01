@@ -43,6 +43,7 @@ class ArbLattice : public LatticeBase {
         size_t snaps;            /// Number of snaps to hold, including adjoint snaps (if present)
         size_t neighbors_pitch;  /// B + I + padding
         size_t coords_pitch;     /// B + I + padding (should be the same as neighbors_pitch, but let's be extra safe since they come from separate pitched allocation calls)
+        size_t cuts_pitch;     /// B + I + padding (should be the same as neighbors_pitch, but same as above)
         size_t snaps_pitch;      /// B + I + G + 1 + padding
     };
 
@@ -181,8 +182,6 @@ class ArbLattice : public LatticeBase {
     void resetAverage();
 
     void CutsOverwrite(cut_t * Q);
-
-    void coordsCSV(const std::vector<real_t>& tab, const std::string& nomFichier);
 };
 
 #endif  // ARBLATTICE_HPP

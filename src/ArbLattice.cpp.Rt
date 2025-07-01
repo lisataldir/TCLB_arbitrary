@@ -319,7 +319,8 @@ void ArbLattice::allocDeviceMemory() {
     neighbors_device = cudaMakeUnique2D<unsigned>(sizes.neighbors_pitch, Q);
     sizes.coords_pitch = local_sz;
     coords_device = cudaMakeUnique2D<real_t>(sizes.coords_pitch, 3);
-    cut_distances_device = cudaMakeUnique2D<cut_t>(sizes.coords_pitch, 26);
+    sizes.cuts_pitch = local_sz;
+    cut_distances_device = cudaMakeUnique2D<cut_t>(sizes.cuts_pitch, 26);
     sizes.snaps_pitch = local_sz + ghost_nodes.size() + 1;
     snaps_device = cudaMakeUnique2D<storage_t>(sizes.snaps_pitch, sizes.snaps * NF);
     node_types_device = cudaMakeUnique<flag_t>(local_sz);
@@ -387,11 +388,11 @@ std::vector<real_t> ArbLattice::computeCoords() const {
 
 std::vector<cut_t> ArbLattice::computeCutDistances() const {
     const auto local_sz = connect.getLocalSize();
-    std::vector<cut_t> retval(sizes.coords_pitch * 26);
+    std::vector<cut_t> retval(sizes.cuts_pitch * 26);
     for (size_t d = 0; d != 26; ++d) {
         size_t i = 0;
-        for (; i != local_sz; ++i) retval[local_permutation[i] + d * sizes.coords_pitch] = connect.cut_distance(d, i);
-        for (; i != sizes.coords_pitch; ++i) retval[i + d * sizes.coords_pitch] = std::numeric_limits<cut_t>::signaling_NaN();  // padding
+        for (; i != local_sz; ++i) retval[local_permutation[i] + d * sizes.cuts_pitch] = connect.cut_distance(d, i);
+        for (; i != sizes.cuts_pitch; ++i) retval[i + d * sizes.cuts_pitch] = std::numeric_limits<cut_t>::signaling_NaN();  // padding
     }
     return retval;
 }
@@ -431,6 +432,7 @@ void ArbLattice::initDeviceData(pugi::xml_node arb_node, const std::map<std::str
     copyVecToDeviceAsync(neighbors_device.get(), nbrs, inStream);
     const auto coords = computeCoords();
     copyVecToDeviceAsync(coords_device.get(), coords, inStream);
+    printf("copyVecToDeviceAsync pour coords passé\n");
     #ifdef OPTIONS_IB
     const auto cuts = computeCutDistances();
     copyVecToDeviceAsync(cut_distances_device.get(), cuts, inStream);
@@ -931,13 +933,6 @@ void ArbLattice::CutsOverwrite(cut_t * Q)
     ContainerActivateCuts(launcher.container);
     for (int i=0; i < launcher.container.coords_pitch; i++){
         for (int d = 0; d<26; d++){
-            // CudaMemcpy2D(&launcher.container.Q[d*connect.getLocalSize() + i], 
-            //            sizeof(cut_t),
-            //            &Q[d*connect.getLocalSize() + i], 
-            //            sizeof(cut_t), 
-            //            sizeof(cut_t), 
-            //            1, 
-            //            CudaMemcpyHostToDevice);
             CudaMemcpy(&launcher.container.Q[d * connect.getLocalSize() + i],
                        &Q[d * connect.getLocalSize() + i],
                        sizeof(cut_t),
