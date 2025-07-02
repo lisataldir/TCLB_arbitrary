@@ -10,6 +10,7 @@
 struct ArbLatticeContainer {
     const unsigned* nbrs;
     const real_t* coords;
+    cut_t* Q;  // cut-distances
     const storage_t* snap_in;
     storage_t* snap_out;
 #ifdef ADJOINT
@@ -17,7 +18,7 @@ struct ArbLatticeContainer {
     storage_t* adj_snap_out;
 #endif
     const flag_t* node_types;
-    unsigned nbrs_pitch, coords_pitch, snaps_pitch, num_border_nodes, num_interior_nodes;
+    unsigned nbrs_pitch, coords_pitch, cuts_pitch, snaps_pitch, num_border_nodes, num_interior_nodes;
 
     // Packing/unpacking on device
     storage_t* pack_buf;
@@ -29,9 +30,6 @@ struct ArbLatticeContainer {
     // Utilities to facilitate the dynamic lookup of the offset direction index
     int dynamic_offset_lookup_table[Model_m::stencil_box_sz];
     OffsetDir stencil_offset, stencil_size;
-
-    // Cut-distances
-    cut_t* Q;
 };
 
 static_assert(std::is_trivially_copyable<ArbLatticeContainer>::value, "ArbLatticeContainer must be trivially copyable");
