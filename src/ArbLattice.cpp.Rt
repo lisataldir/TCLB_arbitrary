@@ -433,8 +433,8 @@ void ArbLattice::initDeviceData(pugi::xml_node arb_node, const std::map<std::str
     const auto coords = computeCoords();
     copyVecToDeviceAsync(coords_device.get(), coords, inStream);
     #ifdef OPTIONS_IB
-    // const auto cuts = computeCutDistances();
-    // copyVecToDeviceAsync(cut_distances_device.get(), cuts, inStream);
+    const auto cuts = computeCutDistances();
+    copyVecToDeviceAsync(cut_distances_device.get(), cuts, inStream);
     #endif
     CudaStreamSynchronize(inStream);
 }
@@ -447,11 +447,11 @@ void ArbLattice::initContainer() {
 #endif
     launcher.container.nbrs = neighbors_device.get();
     launcher.container.coords = coords_device.get();
-    // launcher.container.Q = cut_distances_device.get();
+    launcher.container.Q = cut_distances_device.get();
     launcher.container.node_types = node_types_device.get();
     launcher.container.nbrs_pitch = sizes.neighbors_pitch;
     launcher.container.coords_pitch = sizes.coords_pitch;
-    // launcher.container.cuts_pitch = sizes.cuts_pitch;
+    launcher.container.cuts_pitch = sizes.cuts_pitch;
     launcher.container.snaps_pitch = sizes.snaps_pitch;
     launcher.container.num_border_nodes = sizes.border_nodes;
     launcher.container.num_interior_nodes = connect.getLocalSize() - sizes.border_nodes;
@@ -919,7 +919,7 @@ void ArbLattice::updateAllSamples(){
 static void ContainerActivateCuts(ArbLatticeContainer& container){
   if (!container.Q) {
     void * tmp;
-    size_t size = (size_t) container.coords_pitch*sizeof(cut_t)*26;
+    size_t size = (size_t) container.cuts_pitch*sizeof(cut_t)*26;
     debug2("Allocating: %ld b\n", size);
     CudaMalloc( (void**)&tmp, size );
     debug1("got address: (%p - %p)\n", tmp, (unsigned char*)tmp+size);
@@ -930,17 +930,15 @@ static void ContainerActivateCuts(ArbLatticeContainer& container){
 
 void ArbLattice::CutsOverwrite(cut_t * Q)
 {
-	if (Q == NULL){
-        return;
-    }
+	if (Q == NULL) return;
     ContainerActivateCuts(launcher.container);
-    for (int i=0; i < launcher.container.coords_pitch; i++){
+    const auto local_sz = connect.getLocalSize();
+    for (int i=0; i < local_sz; i++){
         for (int d = 0; d<26; d++){
-            CudaMemcpy(&launcher.container.Q[d * connect.getLocalSize() + i],
-                       &Q[d * connect.getLocalSize() + i],
+            CudaMemcpy(&launcher.container.Q[d * launcher.container.cuts_pitch + i],
+                       &Q[d * local_sz + i],
                        sizeof(cut_t),
                        CudaMemcpyHostToDevice);
-
         }
     }
 }
