@@ -129,6 +129,11 @@ static int writeArbLatticeNodes(const Geometry& geo,
                         const cut_t q = geo.Q[current_lin_pos*26 + i];
                         file << q << ' ';
                     }
+                } else {
+                    for (int i=0; i < 26; i++){
+                        const cut_t q = NO_CUT;
+                        file << q << ' ';
+                    }
                 }
                 #endif
                 file << '\n';
