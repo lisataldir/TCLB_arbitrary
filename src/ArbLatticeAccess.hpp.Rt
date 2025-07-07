@@ -88,7 +88,7 @@ class ArbLatticeAccess {
     CudaDeviceFunction flag_t getNodeType() const { return node_type; }
     CudaDeviceFunction cut_t getQ(int d) const { 
         if (!container->Q) return NO_CUT;
-        size_t i = (size_t)(lid*26 + d);
+        size_t i = (size_t)(container->cuts_pitch*d + lid);
         return container->Q[i];
     }
 <?R
