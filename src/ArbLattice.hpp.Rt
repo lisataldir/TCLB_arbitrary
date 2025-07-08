@@ -180,8 +180,6 @@ class ArbLattice : public LatticeBase {
 
     void updateAllSamples();
     void resetAverage();
-
-    void CutsOverwrite(cut_t * Q);
 };
 
 #endif  // ARBLATTICE_HPP

@@ -915,30 +915,3 @@ void ArbLattice::updateAllSamples(){
         }
     }
 }
-
-static void ContainerActivateCuts(ArbLatticeContainer& container){
-  if (!container.Q) {
-    void * tmp;
-    size_t size = (size_t) container.cuts_pitch*sizeof(cut_t)*26;
-    debug2("Allocating: %ld b\n", size);
-    CudaMalloc( (void**)&tmp, size );
-    debug1("got address: (%p - %p)\n", tmp, (unsigned char*)tmp+size);
-    CudaMemset( tmp, 0, size );
-    container.Q = (cut_t*)tmp;
-  }
-}
-
-void ArbLattice::CutsOverwrite(cut_t * Q)
-{
-	if (Q == NULL) return;
-    ContainerActivateCuts(launcher.container);
-    const auto local_sz = connect.getLocalSize();
-    for (int i=0; i < local_sz; i++){
-        for (int d = 0; d<26; d++){
-            CudaMemcpy(&launcher.container.Q[d * launcher.container.cuts_pitch + i],
-                       &Q[d * local_sz + i],
-                       sizeof(cut_t),
-                       CudaMemcpyHostToDevice);
-        }
-    }
-}

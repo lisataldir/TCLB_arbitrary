@@ -4,7 +4,6 @@ std::string acArbitraryLattice::xmlname = "ArbitraryLattice";
 
 int acArbitraryLattice::Init() {
     const auto lattice = solver->getArbLattice();
-    lattice->CutsOverwrite(lattice->connect.cuts.get());
     return lattice->reinitialize(solver->num_snaps, solver->setting_zones, node);
 
 }
