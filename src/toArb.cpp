@@ -94,7 +94,7 @@ static int writeArbLatticeNodes(const Geometry& geo,
                 file << x_coord << ' ' << y_coord << ' ' << z_coord << ' ';
 
                 // Cartesian index
-                file << lin_pos << ' ';
+                file << current_lin_pos << ' ';
 
                 // Neighbors
                 for (const auto [dx, dy, dz] : Model_m::offset_directions) {
@@ -125,8 +125,9 @@ static int writeArbLatticeNodes(const Geometry& geo,
                     }
                 #ifdef OPTIONS_IB
                 if (geo.Q){
-                    for (int i=0; i < 26; i++){
-                        const cut_t q = geo.Q[current_lin_pos*26 + i];
+                    for (int d=0; d < 26; d++){
+                        size_t i = ((((size_t)d)*nz+z)*ny+y)*nx+x;
+                        const cut_t q = geo.Q[i];
                         file << q << ' ';
                     }
                 } else {
