@@ -83,12 +83,12 @@ int cbSample::Init () {
 
 int cbSample::DoIt () {
 	Callback::DoIt();
-    const auto do_cartesian = [&](const Lattice<CartLattice>* lattice) {
+    const auto do_cartesian = [&](Lattice<CartLattice>* lattice) {
       lattice->sample->writeHistory(solver->iter);
       lattice->sample->startIter = solver->iter;
       return EXIT_SUCCESS;
     };
-    const auto do_arbitrary = [&](const Lattice<ArbLattice>* lattice) {
+    const auto do_arbitrary = [&](Lattice<ArbLattice>* lattice) {
       lattice->sample->writeHistory(solver->iter);
       lattice->sample->startIter = solver->iter;
       return EXIT_SUCCESS;
