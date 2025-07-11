@@ -83,7 +83,7 @@ int ArbLattice::reinitialize(size_t num_snaps_, const std::map<std::string, int>
 /// Calculation of the offset from X, Y and Z
 int ArbLattice::Offset(int x, int y, int z)
 {
-	return x+getLocalBoundingBox().nx*y + getLocalBoundingBox().nx*getLocalBoundingBox().ny*z;
+	return x+connect.nx*y + connect.nx*connect.ny*z;
 }
 
 void ArbLattice::readFromCxn(const std::string& cxn_path) {
@@ -167,6 +167,14 @@ void ArbLattice::readFromCxn(const std::string& cxn_path) {
     file >> grid_size;
     check_file_ok("Failed to read section: GRID_SIZE");
 
+    // Total region
+    file >> word;
+    check_file_ok("Failed to read section header: TOTAL_REGION");
+    check_expected_word("TOTAL_REGION", word);
+    int nx, ny, nz;
+    file >> nx >> ny >> nz;
+    check_file_ok("Failed to read section: TOTAL_REGION");
+
     // Labels present in the .cxn file
     const auto labels = process_section("NODE_LABELS", [&file](size_t n_labels) {
         std::vector<std::string> retval(n_labels);
@@ -184,6 +192,9 @@ void ArbLattice::readFromCxn(const std::string& cxn_path) {
 
         connect = ArbLatticeConnectivity(chunk_begin, chunk_end, num_nodes_global, Q);
         connect.grid_size = grid_size;
+        connect.nx = nx;
+        connect.ny = ny;
+        connect.nz = nz;
 
         // Skip chunk_begin + 1 (header) newlines
         for (size_t i = 0; i != chunk_begin + 1; ++i) file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -886,19 +897,15 @@ void ArbLattice::resetAverage() {
     <?R } ?>
 }
 
-<?R for (q in rows(Quantities)) { 
-ifdef(q$adjoint); ?>
+<?R for (q in rows(Quantities)) { ifdef(q$adjoint); ?>
 void ArbLattice::GetSample<?%s q$name ?>(lbRegion r, real_t scale, real_t* buf)
 {
     launcher.container.snap_in = getSnapPtr(Snap);
     auto it = std::find(connect.cart_index.begin(), connect.cart_index.end(), Offset(r.dx, r.dy, r.dz));
     int lid = (it != connect.cart_index.end()) ? std::distance(connect.cart_index.begin(), it) : -1;
-    if (lid != -1){
-        launcher.getSample(lid, <?%s q$Index ?>, buf, scale, data);
-    }
+    if (lid != -1) launcher.getSample(lid, <?%s q$Index ?>, buf, scale, data);
 }
-<?R } ; 
-ifdef() ?>
+<?R } ;ifdef() ?>
 
 void ArbLattice::updateAllSamples(){
     const int rank = mpitools::MPI_Rank(comm);

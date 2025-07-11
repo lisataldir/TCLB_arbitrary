@@ -724,13 +724,7 @@ void CartLattice::GetSample<?%s q$name ?>(const lbRegion& over, real_t scale, re
 <?R if (q$adjoint) { ?>
     launcher.container.adjin = aSnaps[aSnap]; <?R } ?>
     lbRegion small = getLocalRegion().intersect(over);
-    // launcher.SampleQuantity<?%s q$name ?>(small, (<?%s q$type ?>*)buf, scale, data); // old
-	std::vector<real_t> tmp = getQuantity(model->quantities[<?%s q$Index ?>], small, scale); <?R 
-	if (q$type == "vector_t") {  ?>
-		CudaMemcpy(buf, tmp.data(), sizeof(real_t)*3, CudaMemcpyHostToDevice); <?R
-	} else { ?>
-		CudaMemcpy(buf, tmp.data(), sizeof(real_t), CudaMemcpyHostToDevice); <?R 
-	} ?>
+    launcher.SampleQuantity<?%s q$name ?>(small, (<?%s q$type ?>*)buf, scale, data);
 }
 <?R } ;ifdef() ?>
 

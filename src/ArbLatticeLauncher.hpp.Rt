@@ -160,7 +160,6 @@ struct GetSampleArbExecutor<?%s q$name?> : public LinearExecutor {
             using N = Node< LA, Primal, NoGlobals, Get >; <?R
         }?>
 
-        
         LA acc(local_idx, container);
         N now(acc, data);
         acc.pop(now); <?R

@@ -20,6 +20,7 @@ struct ArbLatticeConnectivity {
     std::vector<Index> cart_index;
     std::vector<ZoneIndex> zones;
     double grid_size{};
+    int nx, ny, nz; // total region
 
     ArbLatticeConnectivity() = default;
     ArbLatticeConnectivity(size_t chunk_begin_, size_t chunk_end_, size_t num_nodes_global_, size_t Q_)
