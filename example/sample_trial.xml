@@ -19,7 +19,7 @@
 			<Box nz="2"/>
 		</BPressure>
 		<Wall mask="ALL">
-			<STL file="Cheng-model.stl" scale="1e-3m" x="12.749e-3m" y="-0.268929e-3m" z="170.765e-3m" side="out"/>
+			<STL file="example/Cheng-model.stl" scale="1e-3m" x="12.749e-3m" y="-0.268929e-3m" z="170.765e-3m" side="out"/>
 		</Wall>
 	</Geometry>
 

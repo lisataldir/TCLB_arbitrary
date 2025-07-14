@@ -19,10 +19,10 @@
 			<Box nz="2"/>
 		</BPressure>
 		<IB>
-            <STL file="Cheng-model.stl" scale="1e-3m" x="12.749e-3m" y="-0.268929e-3m" z="170.765e-3m" side="surface"/>
+            <STL file="example/Cheng-model.stl" scale="1e-3m" x="12.749e-3m" y="-0.268929e-3m" z="170.765e-3m" side="surface"/>
         </IB>
 		<Wall mask="ALL">
-			<STL file="Cheng-model.stl" scale="1e-3m" x="12.749e-3m" y="-0.268929e-3m" z="170.765e-3m" side="out"/>
+			<STL file="example/Cheng-model.stl" scale="1e-3m" x="12.749e-3m" y="-0.268929e-3m" z="170.765e-3m" side="out"/>
 		</Wall>
 	</Geometry>
 
@@ -31,11 +31,12 @@
 		<Param name="nu" value="1.408e-5m2/s"/>
 	</Model>
 
-    <Sample Iterations="1" what="P,averageP">
-        <Point dx="13e-3m" dy="70.21e-3m" dz="113.95e-3m"/> 
+    <Sample Iterations="1">
+        <Point dx="13e-3m" dy="70.21e-3m" dz="113.95e-3m"/>
+        <Point dx="10e-3m" dy="62.97e-3m" dz="0.50e-3m"/> 
     </Sample>
     
-    <VTK Iterations="1"/>
-    <Solve Iterations="10"/>
+    <!--<VTK Iterations="1"/>-->
+    <Solve Iterations="1"/>
 
 </CLBConfig>
