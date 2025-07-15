@@ -17,7 +17,8 @@ struct ArbLatticeContainer {
     const storage_t* adj_snap_in;
     storage_t* adj_snap_out;
 #endif
-    const flag_t* node_types;
+    // const flag_t* node_types;
+    flag_t* node_types;
     unsigned nbrs_pitch, coords_pitch, cuts_pitch, snaps_pitch, num_border_nodes, num_interior_nodes;
 
     // Packing/unpacking on device
