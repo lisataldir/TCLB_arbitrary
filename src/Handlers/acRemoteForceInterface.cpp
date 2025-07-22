@@ -62,46 +62,51 @@ int acRemoteForceInterface::ConnectRemoteForceInterface(std::string integrator_)
           stats = true;
         }
 
-        const auto lattice = solver->getCartLattice();
-        if (stats) {
+        const auto do_cartesian = [&](Lattice<CartLattice>* lattice){
+          if (stats) {
           output("Asking for stats on RFI ( %s every %d it)\n", stats_prefix.c_str(), stats_iter);
-          lattice->RFI.enableStats(stats_prefix.c_str(), stats_iter);
-        }
+            lattice->RFI.enableStats(stats_prefix.c_str(), stats_iter);
+          }
 
-        inter = MPMD[integrator_];
-        if (! inter) {
-                ERROR("Integrator %s not found in MPMD (that usualy means that you didn't run it)\n",integrator_.c_str());
-                return -1;
-        }
-        integrator = integrator_;
+          inter = MPMD[integrator_];
+          if (! inter) {
+                  ERROR("Integrator %s not found in MPMD (that usualy means that you didn't run it)\n",integrator_.c_str());
+                  return -1;
+          }
+          integrator = integrator_;
 
-        bool use_box = true;
-        attr = node.attribute("use_box");
-        if (attr) use_box = attr.as_bool();
+          bool use_box = true;
+          attr = node.attribute("use_box");
+          if (attr) use_box = attr.as_bool();
 
-        if (use_box) {
-          lbRegion reg = lattice->getLocalRegion();
-          double px = lattice->px;
-          double py = lattice->py;
-          double pz = lattice->pz;
-          lattice->RFI.DeclareSimpleBox(
-            px + reg.dx - PART_MAR_BOX,
-            px + reg.dx + reg.nx + PART_MAR_BOX,
-            py + reg.dy - PART_MAR_BOX,
-            py + reg.dy + reg.ny + PART_MAR_BOX,
-            pz + reg.dz - PART_MAR_BOX,
-            pz + reg.dz + reg.nz + PART_MAR_BOX);
-        }
+          if (use_box) {
+            lbRegion reg = lattice->getLocalRegion();
+            double px = lattice->px;
+            double py = lattice->py;
+            double pz = lattice->pz;
+            lattice->RFI.DeclareSimpleBox(
+              px + reg.dx - PART_MAR_BOX,
+              px + reg.dx + reg.nx + PART_MAR_BOX,
+              py + reg.dy - PART_MAR_BOX,
+              py + reg.dy + reg.ny + PART_MAR_BOX,
+              pz + reg.dz - PART_MAR_BOX,
+              pz + reg.dz + reg.nz + PART_MAR_BOX);
+          }
 
-        attr = node.attribute("omega");
-        if (attr) solver->lattice->RFI_omega = attr.as_bool();
-        attr = node.attribute("torque");
-        if (attr) solver->lattice->RFI_torque = attr.as_bool();
+          attr = node.attribute("omega");
+          if (attr) solver->lattice->RFI_omega = attr.as_bool();
+          attr = node.attribute("torque");
+          if (attr) solver->lattice->RFI_torque = attr.as_bool();
 
-        MPI_Barrier(MPMD.local);
-        lattice->RFI.Connect(MPMD.work,inter.work);
-        
-	return 0;
+          MPI_Barrier(MPMD.local);
+          lattice->RFI.Connect(MPMD.work,inter.work);
+          return EXIT_SUCCESS;
+        };
+        const auto do_arbitrary = [&](Lattice<ArbLattice>* lattice){
+          // TODO
+          return EXIT_SUCCESS;
+        };
+        return std::visit(OverloadSet{do_cartesian, do_arbitrary}, solver->getLatticeVariant());
 }
 
 

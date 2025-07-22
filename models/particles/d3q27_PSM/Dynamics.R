@@ -86,6 +86,7 @@ AddSetting(name="Pressure", default="0Pa", comment='Inlet pressure', zonal=TRUE,
 AddSetting(name="aX_mean", default=0.0, comment='mean of oscillating acceleration X', zonal=TRUE, unit="m/s2")
 AddSetting(name="aX_amp", default=0.0, comment='amplitude of oscillating acceleration X', zonal=TRUE, unit="m/s2")
 AddSetting(name="aX_freq", default=0.0, comment='frequency of oscillating acceleration', zonal=TRUE, unit="1/s")
+AddSetting(name="AccelX", default=0.0, comment='body acceleration X', zonal=TRUE, unit="m/s2")
 AddSetting(name="AccelY", default=0.0, comment='body acceleration Y', zonal=TRUE, unit="m/s2")
 AddSetting(name="AccelZ", default=0.0, comment='body acceleration Z', zonal=TRUE, unit="m/s2")
 
