@@ -85,6 +85,8 @@ int acRemoteForceInterface::ConnectRemoteForceInterface(std::string integrator_)
             double py = lattice->py;
             double pz = lattice->pz;
             printf("Position: %dx%dx%d\n", px, py, pz);
+            printf("Region: %dx%dx%d - %dx%dx%d\n", reg.nx, reg.ny, reg.nz, reg.dx, reg.dy, reg.dz);
+            printf("PART_MAR_BOX: %ld\n", PART_MAR_BOX);
             lattice->RFI.DeclareSimpleBox(
               px + reg.dx - PART_MAR_BOX,
               px + reg.dx + reg.nx + PART_MAR_BOX,
@@ -123,6 +125,8 @@ int acRemoteForceInterface::ConnectRemoteForceInterface(std::string integrator_)
           if (use_box) {
             // TODO
             lbRegion reg = lattice->getLocalBoundingBox();
+            printf("Region: %dx%dx%d - %dx%dx%d\n", reg.nx, reg.ny, reg.nz, reg.dx, reg.dy, reg.dz);
+            printf("PART_MAR_BOX: %ld\n", PART_MAR_BOX);
             lattice->RFI.DeclareSimpleBox(
               reg.dx - PART_MAR_BOX,
               reg.dx + reg.nx + PART_MAR_BOX,
