@@ -84,6 +84,7 @@ int acRemoteForceInterface::ConnectRemoteForceInterface(std::string integrator_)
             double px = lattice->px;
             double py = lattice->py;
             double pz = lattice->pz;
+            printf("Position: %dx%dx%d\n", px, py, pz);
             lattice->RFI.DeclareSimpleBox(
               px + reg.dx - PART_MAR_BOX,
               px + reg.dx + reg.nx + PART_MAR_BOX,

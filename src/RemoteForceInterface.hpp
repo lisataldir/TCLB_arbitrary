@@ -732,6 +732,8 @@ void RemoteForceInterface < TYPE, ROT, STORAGE, rfi_real_t, tab_allocator >::Dec
   myBox.upper[0] = x1 / base_units[0];
   myBox.upper[1] = y1 / base_units[0];
   myBox.upper[2] = z1 / base_units[0];
+
+  printf("Simple box: %dx%dx%d - %dx%dx%d\n", myBox.lower[0], myBox.lower[1], myBox.lower[2], myBox.upper[0], myBox.upper[1], myBox.upper[2]);
 }
 
 };
