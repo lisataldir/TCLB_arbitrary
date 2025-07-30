@@ -166,6 +166,16 @@ CudaDeviceFunction void WVelocity()
 <?R ZouHe(EQ, 1, 1, "velocity") ?>
 }
 
+CudaDeviceFunction void FVelocity()
+{
+<?R ZouHe(EQ, 3, -1, "velocity") ?>
+}
+
+CudaDeviceFunction void BVelocity()
+{
+<?R ZouHe(EQ, 3, 1, "velocity") ?>
+}
+
 CudaDeviceFunction void SVelocity()
 {
 <?R ZouHe(EQ, 2, 1, "velocity") ?>
@@ -179,6 +189,16 @@ CudaDeviceFunction void NVelocity()
 CudaDeviceFunction void WPressure()
 {
 <?R ZouHe(EQ, 1, 1, "pressure") ?>
+}
+
+CudaDeviceFunction void FPressure()
+{
+<?R ZouHe(EQ, 3, -1, "pressure") ?>
+}
+
+CudaDeviceFunction void BPressure()
+{
+<?R ZouHe(EQ, 3, 1, "pressure") ?>
 }
 
 CudaDeviceFunction void SPressure()
