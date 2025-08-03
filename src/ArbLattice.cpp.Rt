@@ -958,3 +958,9 @@ void ArbLattice::updateAllSamples(){
         }
     }
 }
+
+/// Destructor
+ArbLattice::~ArbLattice()
+{
+	RFI.Close();
+}

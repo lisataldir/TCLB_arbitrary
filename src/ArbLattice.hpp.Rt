@@ -168,6 +168,8 @@ class ArbLattice : public LatticeBase {
     unsigned lookupLocalGhostIndex(ArbLatticeConnectivity::Index gid) const;                                                       /// For a given ghost gid, look up its local id
     void debugDumpConnect(const std::string& name) const;                                                                          /// Dump connectivity info for debug purposes
     void debugDumpVTU() const;                                                                                                     /// Dump VTU info info for debug purposes
+
+    virtual ~ArbLattice ();                                                                                                        /// Destructor
   
   public:
     lbRegion getLocalBoundingBox() const;                                                                                          /// Compute local bounding box, assuming the arbitrary lattice is a subset of a Cartesian lattice 
